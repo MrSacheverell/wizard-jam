@@ -8,14 +8,15 @@ depth = -y - 1;
 // Lifetime
 life--;
 if (life <= 0) {
-    instance_destroy();
+    finish();
     exit;
 }
 
 // Walls (checked at the ground position)
 if (position_meeting(x, y, obj_wall) || (array_length(global.solids) > 0 && position_meeting(x, y, global.solids))) {
-    fx_burst(x - hsp, y - z - vsp, color, 4);
-    instance_destroy();
+    x -= hsp;   // step back so explosions happen in front of the wall
+    y -= vsp;
+    finish();
     exit;
 }
 
@@ -32,6 +33,11 @@ with (obj_enemy) {
 }
 
 if (_hit != noone) {
+    if (explode_r > 0) {
+        finish();          // the explosion damages the target and everything near it
+        exit;
+    }
+
     _hit.take_hit(dmg, lengthdir_x(knock, dir), lengthdir_y(knock, dir), element);
     array_push(hits, _hit);
     fx_burst(x, y - z, color, 6);

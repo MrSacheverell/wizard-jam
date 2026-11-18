@@ -15,14 +15,16 @@ global.element_color = [
 
 // ---------------------------------------------------------------------
 // Spell database. Each entry:
-//   name, element, cooldown (seconds), cast(caster, tier, dir)
+//   name, short (HUD label), element, cooldown (seconds), cast(caster, tier, dir)
 // cast() receives the caster instance, the spell tier (1..3) and the aim
-// direction in degrees, and spawns whatever the spell makes.
+// direction in degrees. Return false from cast() to NOT start the cooldown
+// (e.g. Chain Lightning with no target in range).
 // ---------------------------------------------------------------------
 global.spell_db = {
 
     magic_bolt: {
         name:     "Magic Bolt",
+        short:    "MB",
         element:  ELEMENT.NONE,
         cooldown: 0.25,
         cast: function(_caster, _tier, _dir) {
@@ -40,7 +42,65 @@ global.spell_db = {
         },
     },
 
-    // fireball, chain_lightning ... go here next
+    fireball: {
+        name:     "Fireball",
+        short:    "FB",
+        element:  ELEMENT.BURN,
+        cooldown: 1.2,
+        cast: function(_caster, _tier, _dir) {
+            projectile_spawn(_caster.x, _caster.y, _dir, {
+                spd:       3.5,
+                dmg:       2,          // explosion damage (direct hit = explosion)
+                life:      60,         // explodes where it fizzles, too
+                radius:    4,
+                knock:     2.5,
+                size:      4,
+                element:   ELEMENT.BURN,
+                color:     global.element_color[ELEMENT.BURN],
+                explode_r: (_tier >= 2) ? 34 : 26,   // tier 2: bigger blast (tier 3 burning ground later)
+            });
+        },
+    },
+
+    chain_lightning: {
+        name:     "Chain Lightning",
+        short:    "CL",
+        element:  ELEMENT.SHOCK,
+        cooldown: 2.0,
+        cast: function(_caster, _tier, _dir) {
+            var _jump_table = [3, 5, 7];
+            var _jumps = _jump_table[clamp(_tier, 1, 3) - 1];
+
+            // First target: nearest the cursor, else nearest the caster
+            var _cur = enemy_nearest(global.mouse_wx, global.mouse_wy, 64, []);
+            if (_cur == noone) _cur = enemy_nearest(_caster.x, _caster.y, 160, []);
+            if (_cur == noone) return false;    // nothing in range: no cooldown
+
+            var _col = global.element_color[ELEMENT.SHOCK];
+            var _pts = [[_caster.x, _caster.y - 10]];
+            var _hit = [];
+
+            for (var i = 0; i <= _jumps && _cur != noone; i++) {
+                // Read position BEFORE damaging: the hit may kill and destroy it
+                var _nx = _cur.x, _ny = _cur.y, _nz = _cur.z;
+                array_push(_hit, _cur);
+                array_push(_pts, [_nx, _ny - 8 - _nz]);
+
+                var _px = _pts[i][0], _py = _pts[i][1];
+                var _d = point_direction(_px, _py, _nx, _ny);
+                _cur.take_hit(1, lengthdir_x(0.8, _d), lengthdir_y(0.8, _d), ELEMENT.SHOCK);
+                fx_burst(_nx, _ny - 8 - _nz, _col, 5);
+
+                _cur = enemy_nearest(_nx, _ny, 72, _hit);
+            }
+
+            var _l = instance_create_depth(0, 0, -99999, obj_lightning);
+            _l.points = _pts;
+            _l.color  = _col;
+            shake(2);
+            hitstop(2);
+        },
+    },
 };
 
 /// @func spell_get(spell_id)
@@ -57,7 +117,9 @@ function spell_cast(_caster, _slot) {
     if (is_undefined(_def)) return false;
 
     var _dir = point_direction(_caster.x, _caster.y - 8, global.mouse_wx, global.mouse_wy);
-    _def.cast(_caster, _s.tier, _dir);
+    var _ok  = _def.cast(_caster, _s.tier, _dir);
+    if (_ok == false) return false;
+
     _s.cd = round(_def.cooldown * 60 * _caster.cd_mult);
     return true;
 }
@@ -75,4 +137,36 @@ function projectile_spawn(_x, _y, _dir, _cfg) {
     _p.hsp = lengthdir_x(_p.spd, _dir);
     _p.vsp = lengthdir_y(_p.spd, _dir);
     return _p;
+}
+
+/// @func enemy_nearest(x, y, range, exclude_array)
+/// Nearest living enemy within range (ground plane), skipping ids in exclude.
+function enemy_nearest(_x, _y, _range, _exclude) {
+    var _best = noone;
+    var _bd   = _range;
+    with (obj_enemy) {
+        if (hp > 0 && !array_contains(_exclude, id)) {
+            var _d = point_distance(x, y, _x, _y);
+            if (_d < _bd) { _bd = _d; _best = id; }
+        }
+    }
+    return _best;
+}
+
+/// @func spell_explode(x, y, radius, dmg, element, knock, colour)
+/// Area damage + knockback away from the center, with ring and sparks.
+function spell_explode(_x, _y, _r, _dmg, _el, _knock, _col) {
+    with (obj_enemy) {
+        if (hp > 0 && point_distance(x, y, _x, _y) < _r + hurt_r) {
+            var _d = point_direction(_x, _y, x, y);
+            take_hit(_dmg, lengthdir_x(_knock, _d), lengthdir_y(_knock, _d), _el);
+        }
+    }
+    var _ring = instance_create_depth(_x, _y, -_y - 2, obj_fx_ring);
+    _ring.r_max = _r;
+    _ring.color = _col;
+    fx_burst(_x, _y - 6, _col, 18);
+    fx_burst(_x, _y - 6, c_white, 6);
+    shake(3);
+    hitstop(2);
 }

@@ -46,3 +46,45 @@ if (global.debug) {
     draw_text(6, _y, "F2 hit test   F3 hurt self");
     draw_set_color(c_white);
 }
+
+// ---- Spell slots (temporary HUD until obj_ui) ----
+if (instance_exists(obj_player)) {
+    var _keys = ["LMB", "RMB", "Q", "E"];
+    var _bw = 20, _gap = 4;
+    var _x0 = GAME_W / 2 - (4 * _bw + 3 * _gap) / 2;
+    var _y0 = GAME_H - _bw - 6;
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    for (var i = 0; i < 4; i++) {
+        var _bx = _x0 + i * (_bw + _gap);
+        var _s  = obj_player.slots[i];
+        draw_set_color(c_black);
+        draw_set_alpha(0.6);
+        draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, false);
+        draw_set_alpha(1);
+        if (!is_undefined(_s)) {
+            var _def = spell_get(_s.id);
+            var _col = global.element_color[_def.element];
+            // Cooldown shade, shrinking from the top
+            var _max = max(1, _def.cooldown * 60 * obj_player.cd_mult);
+            var _f = clamp(_s.cd / _max, 0, 1);
+            draw_set_color(_col);
+            draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, true);
+            if (_f > 0) {
+                draw_set_alpha(0.55);
+                draw_set_color(c_black);
+                draw_rectangle(_bx + 1, _y0 + 1, _bx + _bw - 1, _y0 + 1 + (_bw - 2) * _f, false);
+                draw_set_alpha(1);
+            }
+            draw_set_color((_f > 0) ? c_gray : _col);
+            draw_text(_bx + _bw / 2 + 1, _y0 + _bw / 2 + 1, _def.short);
+        } else {
+            draw_set_color(c_dkgray);
+            draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, true);
+        }
+        draw_set_color(c_white);
+        draw_text(_bx + _bw / 2, _y0 - 6, _keys[i]);
+    }
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+}

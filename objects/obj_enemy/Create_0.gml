@@ -8,6 +8,9 @@ contact_dmg  = 1;        // damage on touching the player (0 = none)
 hurt_r       = 7;        // hurt radius on the ground plane
 knock_resist = 0;        // 0..1, Shield Brute / Armored elites go higher
 death_color  = make_color_rgb(140, 220, 110);
+flying       = false;    // true: ignores walls (Bat)
+z            = 0;        // draw height above the ground (flyers)
+tint         = c_white;  // e.g. red while telegraphing an attack
 
 hsp = 0;                 // movement this frame (set by ai_step)
 vsp = 0;
@@ -15,7 +18,11 @@ kx  = 0;                 // knockback velocity, decays every frame
 ky  = 0;
 flash  = 0;              // white hit-flash frames
 facing = 1;
-last_element = ELEMENT.NONE;   // status_apply() replaces this later
+
+// Element status (see scr_status)
+status_el = ELEMENT.NONE;
+status_t  = 0;
+burn_tick = 0;
 
 /// Override in children: set hsp/vsp (and facing) for this frame.
 ai_step = function() {};
@@ -27,13 +34,13 @@ take_hit = function(_dmg, _kx, _ky, _element) {
     flash  = 5;
     kx    += _kx * (1 - knock_resist);
     ky    += _ky * (1 - knock_resist);
-    last_element = _element;
+    status_apply(id, _element, STATUS_DUR);
     shake(1);
     if (hp <= 0) die();
 };
 
 die = function() {
-    fx_burst(x, y - 8, death_color, 12);
+    fx_burst(x, y - 8 - z, death_color, 12);
     hitstop(3);
     shake(3);
     instance_destroy();

@@ -3,6 +3,10 @@ if (game_frozen()) exit;
 
 if (flash > 0) flash--;
 
+// Elements (Burn ticks can kill, so stop if we died)
+status_tick();
+if (!instance_exists(id) || hp <= 0) exit;
+
 hsp = 0;
 vsp = 0;
 ai_step();
@@ -23,7 +27,12 @@ ky *= 0.8;
 if (abs(kx) < 0.05) kx = 0;
 if (abs(ky) < 0.05) ky = 0;
 
-move_collide();
+if (flying) {
+    x = clamp(x + hsp, 16, room_width - 16);
+    y = clamp(y + vsp, 24, room_height - 16);
+} else {
+    move_collide();
+}
 depth = -y;
 
 // Contact damage (player's own i-frames stop repeat hits)

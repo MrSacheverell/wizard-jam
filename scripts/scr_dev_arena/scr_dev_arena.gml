@@ -46,7 +46,7 @@ function dev_build_test_arena() {
 }
 
 /// @func dev_spawn_wave(count)
-/// Spawns Shamblers on free floor, away from the player.
+/// Spawns Shamblers (and ~30% Bats) on free floor, away from the player.
 function dev_spawn_wave(_count) {
     var _px = instance_exists(obj_player) ? obj_player.x : room_width / 2;
     var _py = instance_exists(obj_player) ? obj_player.y : room_height / 2;
@@ -57,7 +57,7 @@ function dev_spawn_wave(_count) {
         var _y = random_range(56, room_height - 40);
         if (point_distance(_x, _y, _px, _py) < 140) continue;
         if (collision_rectangle(_x - 8, _y - 8, _x + 8, _y + 4, obj_wall, false, true) != noone) continue;
-        instance_create_layer(_x, _y, "Instances", obj_shambler);
+        instance_create_layer(_x, _y, "Instances", (random(1) < 0.3) ? obj_bat : obj_shambler);
         _made++;
     }
 }

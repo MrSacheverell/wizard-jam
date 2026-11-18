@@ -19,6 +19,11 @@
   },
   "name":"Wizard Jam",
   "resources":[
+    {"id":{"name":"scr_status","path":"scripts/scr_status/scr_status.yy",},},
+    {"id":{"name":"spr_bat","path":"sprites/spr_bat/spr_bat.yy",},},
+    {"id":{"name":"obj_bat","path":"objects/obj_bat/obj_bat.yy",},},
+    {"id":{"name":"obj_lightning","path":"objects/obj_lightning/obj_lightning.yy",},},
+    {"id":{"name":"obj_fx_ring","path":"objects/obj_fx_ring/obj_fx_ring.yy",},},
     {"id":{"name":"obj_camera","path":"objects/obj_camera/obj_camera.yy",},},
     {"id":{"name":"obj_enemy","path":"objects/obj_enemy/obj_enemy.yy",},},
     {"id":{"name":"obj_game","path":"objects/obj_game/obj_game.yy",},},
