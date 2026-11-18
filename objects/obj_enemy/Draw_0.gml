@@ -7,15 +7,18 @@ draw_ellipse(x - _sw, y - 2, x + _sw, y + 2, false);
 draw_set_alpha(1);
 draw_set_color(c_white);
 
-// Body, flashing white when hit
+// Body: frozen enemies turn icy, hit flash goes white
+var _tint = tint;
+if (status_el == ELEMENT.FREEZE) _tint = merge_color(tint, global.element_color[ELEMENT.FREEZE], 0.65);
+
 if (flash > 0) gpu_set_fog(true, c_white, 0, 1);
-draw_sprite_ext(sprite_index, image_index, x, y - z, facing, 1, 0, tint, 1);
+draw_sprite_ext(sprite_index, image_index, x, y - z, facing, 1, 0, _tint, 1);
 if (flash > 0) gpu_set_fog(false, c_white, 0, 0);
 
 // Element pip above the head
+var _py = y - z - 20;
 if (status_el != ELEMENT.NONE) {
     var _col = global.element_color[status_el];
-    var _py  = y - z - 20;
     var _blink = (status_t < 40) && ((status_t div 4) mod 2 == 0);  // blink as it expires
     if (!_blink) {
         gpu_set_blendmode(bm_add);
@@ -26,9 +29,17 @@ if (status_el != ELEMENT.NONE) {
         gpu_set_blendmode(bm_normal);
         draw_set_color(_col);
         draw_circle(x, _py, 1.5, false);
-        draw_set_color(c_white);
     }
 }
+
+// Superconduct marker: small violet diamond beside the pip
+if (vuln_t > 0) {
+    var _dx = x + 6;
+    draw_set_color(global.react_color.superconduct);
+    draw_triangle(_dx, _py - 3, _dx + 2, _py, _dx - 2, _py, false);
+    draw_triangle(_dx, _py + 3, _dx + 2, _py, _dx - 2, _py, false);
+}
+draw_set_color(c_white);
 
 if (global.debug) {
     draw_set_color(c_red);

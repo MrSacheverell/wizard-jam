@@ -1,14 +1,33 @@
 /// obj_game — Step
 // Not frozen by hitstop: these inputs must always work.
 
-// Pause (only while alive)
-if (keyboard_check_pressed(vk_escape) && !run_over) {
-    global.paused = !global.paused;
+// ---- Title screen ----
+if (room == rm_title) {
+    global.paused = false;
+    if (menu_kind != "title") menu_open(menu_title_items(), "title");
+    menu_update();
+    exit;
 }
 
-// Instant restart on death screen
-if (run_over && keyboard_check_pressed(ord("R"))) {
-    run_restart();
+// ---- Auto-pause when the game loses focus ----
+// Browser: tab hidden/switched. Desktop: window lost focus (alt-tab).
+if (!global.paused && !run_over) {
+    var _lost = is_browser() ? os_is_paused() : !window_has_focus();
+    if (_lost) pause_open();
+}
+
+// ---- Pause menu ----
+if (keyboard_check_pressed(vk_escape) && !run_over) {
+    if (global.paused) global.paused = false; else pause_open();
+}
+else if (global.paused) {
+    menu_update();
+}
+
+// ---- Death screen ----
+if (run_over) {
+    if (keyboard_check_pressed(ord("R"))) run_restart();
+    else if (keyboard_check_pressed(vk_escape)) go_title();
 }
 
 // ---- Debug keys (remove or gate before release) ----

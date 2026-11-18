@@ -7,9 +7,16 @@ if (flash > 0) flash--;
 status_tick();
 if (!instance_exists(id) || hp <= 0) exit;
 
+var _frozen = (status_el == ELEMENT.FREEZE);
+
 hsp = 0;
 vsp = 0;
-ai_step();
+if (!_frozen) ai_step();          // frozen enemies don't think or move
+
+if (slow_t > 0) {                 // Steam
+    hsp *= 0.35;
+    vsp *= 0.35;
+}
 
 // Soft separation so crowds spread out instead of stacking
 var _o = instance_place(x, y, obj_enemy);
@@ -35,8 +42,8 @@ if (flying) {
 }
 depth = -y;
 
-// Contact damage (player's own i-frames stop repeat hits)
-if (contact_dmg > 0 && instance_exists(obj_player)) {
+// Contact damage (frozen enemies are harmless; player i-frames stop repeats)
+if (contact_dmg > 0 && !_frozen && instance_exists(obj_player)) {
     var _p = obj_player;
     if (point_distance(x, y, _p.x, _p.y) < hurt_r + 5) {
         _p.take_damage(contact_dmg, x, y);

@@ -6,31 +6,35 @@ draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_color(c_white);
 
+// ---- Title screen ----
+if (room == rm_title) {
+    var _t = current_time / 1000;
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    // Title with a slow element-color shimmer
+    var _cols = global.element_color;
+    var _c = merge_color(_cols[ELEMENT.NONE], _cols[1 + (floor(_t) mod 3)], 0.5 + 0.5 * sin(_t * 3));
+    draw_set_color(c_black);
+    draw_text_transformed(GAME_W / 2 + 2, 72 + 2, "ARCANE OVERLOAD", 2, 2, 0);
+    draw_set_color(_c);
+    draw_text_transformed(GAME_W / 2, 72, "ARCANE OVERLOAD", 2, 2, 0);
+    draw_set_color(c_gray);
+    draw_text(GAME_W / 2, 100, "a wizard roguelite");
+    menu_draw();
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    draw_set_color(c_dkgray);
+    draw_text(GAME_W / 2, GAME_H - 30, "WASD move   Space dash   Mouse aim");
+    draw_text(GAME_W / 2, GAME_H - 16, "LMB / RMB / Q / E cast   Esc pause");
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_color(c_white);
+    exit;
+}
+
 // HP (placeholder)
 if (instance_exists(obj_player)) {
     draw_text(6, 4, "HP " + string(obj_player.hp) + "/" + string(obj_player.max_hp));
-}
-
-// Pause
-if (global.paused) {
-    draw_set_alpha(0.5);
-    draw_set_color(c_black);
-    draw_rectangle(0, 0, GAME_W, GAME_H, false);
-    draw_set_alpha(1);
-    draw_set_color(c_white);
-    draw_set_halign(fa_center);
-    draw_text(GAME_W / 2, GAME_H / 2 - 6, "PAUSED");
-    draw_set_halign(fa_left);
-}
-
-// Death screen
-if (run_over) {
-    draw_set_halign(fa_center);
-    draw_set_color(c_red);
-    draw_text(GAME_W / 2, GAME_H / 2 - 12, "YOU DIED");
-    draw_set_color(c_white);
-    draw_text(GAME_W / 2, GAME_H / 2 + 4, "Press R to restart");
-    draw_set_halign(fa_left);
 }
 
 // Debug overlay (F1)
@@ -87,4 +91,29 @@ if (instance_exists(obj_player)) {
     }
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
+}
+
+// Pause menu
+if (global.paused) {
+    draw_set_alpha(0.6);
+    draw_set_color(c_black);
+    draw_rectangle(0, 0, GAME_W, GAME_H, false);
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    draw_text(GAME_W / 2, menu_y0() - 18, "PAUSED");
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    menu_draw();
+}
+
+// Death screen
+if (run_over) {
+    draw_set_halign(fa_center);
+    draw_set_color(c_red);
+    draw_text(GAME_W / 2, GAME_H / 2 - 12, "YOU DIED");
+    draw_set_color(c_white);
+    draw_text(GAME_W / 2, GAME_H / 2 + 4, "R: restart     Esc: title");
+    draw_set_halign(fa_left);
 }

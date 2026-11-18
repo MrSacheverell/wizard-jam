@@ -19,10 +19,12 @@ ky  = 0;
 flash  = 0;              // white hit-flash frames
 facing = 1;
 
-// Element status (see scr_status)
+// Element status and reaction effects (see scr_status)
 status_el = ELEMENT.NONE;
 status_t  = 0;
 burn_tick = 0;
+vuln_t    = 0;           // Superconduct: takes extra damage while > 0
+slow_t    = 0;           // Steam: moves slowly while > 0
 
 /// Override in children: set hsp/vsp (and facing) for this frame.
 ai_step = function() {};
@@ -30,16 +32,37 @@ ai_step = function() {};
 /// Called by projectiles and spells.
 take_hit = function(_dmg, _kx, _ky, _element) {
     if (hp <= 0) return;
+
+    if (vuln_t > 0) _dmg *= SUPER_MULT;
+
+    // SHATTER: a big hit on a frozen enemy
+    if (status_el == ELEMENT.FREEZE && _dmg >= BIG_HIT) {
+        _dmg *= SHATTER_MULT;
+        status_el = ELEMENT.NONE;
+        status_t  = 0;
+        fx_text(x, y - 24 - z, "SHATTER", global.react_color.shatter);
+        fx_burst(x, y - 8 - z, global.react_color.shatter, 14);
+        hitstop(4);
+        shake(4);
+    }
+
     hp    -= _dmg;
     flash  = 5;
     kx    += _kx * (1 - knock_resist);
     ky    += _ky * (1 - knock_resist);
-    status_apply(id, _element, STATUS_DUR);
     shake(1);
+
+    // Apply the element (may trigger a reaction), then die if needed,
+    // so killing blows still set off Overloads.
+    var _dur = (_element == ELEMENT.FREEZE) ? FREEZE_DUR : STATUS_DUR;
+    status_apply(id, _element, _dur);
+
     if (hp <= 0) die();
 };
 
 die = function() {
+    if (!instance_exists(id)) return;
+    hp = 0;
     fx_burst(x, y - 8 - z, death_color, 12);
     hitstop(3);
     shake(3);

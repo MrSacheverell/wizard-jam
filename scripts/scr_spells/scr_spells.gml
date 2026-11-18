@@ -101,6 +101,19 @@ global.spell_db = {
             hitstop(2);
         },
     },
+
+    frost_nova: {
+        name:     "Frost Nova",
+        short:    "FN",
+        element:  ELEMENT.FREEZE,
+        cooldown: 6.0,
+        cast: function(_caster, _tier, _dir) {
+            // Ring around the caster; aim doesn't matter
+            var _r = (_tier >= 2) ? 56 : 42;      // tier 2: wider ring (tier 3 shards later)
+            spell_explode(_caster.x, _caster.y, _r, 1, ELEMENT.FREEZE, 1.2,
+                          global.element_color[ELEMENT.FREEZE]);
+        },
+    },
 };
 
 /// @func spell_get(spell_id)

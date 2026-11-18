@@ -19,6 +19,10 @@
   },
   "name":"Wizard Jam",
   "resources":[
+    {"id":{"name":"scr_menu","path":"scripts/scr_menu/scr_menu.yy",},},
+    {"id":{"name":"obj_steam","path":"objects/obj_steam/obj_steam.yy",},},
+    {"id":{"name":"obj_fx_text","path":"objects/obj_fx_text/obj_fx_text.yy",},},
+    {"id":{"name":"rm_title","path":"rooms/rm_title/rm_title.yy",},},
     {"id":{"name":"scr_status","path":"scripts/scr_status/scr_status.yy",},},
     {"id":{"name":"spr_bat","path":"sprites/spr_bat/spr_bat.yy",},},
     {"id":{"name":"obj_bat","path":"objects/obj_bat/obj_bat.yy",},},
@@ -49,6 +53,7 @@
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
     {"roomId":{"name":"rm_init","path":"rooms/rm_init/rm_init.yy",},},
+    {"roomId":{"name":"rm_title","path":"rooms/rm_title/rm_title.yy",},},
     {"roomId":{"name":"rm_arena_test","path":"rooms/rm_arena_test/rm_arena_test.yy",},},
     {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
   ],

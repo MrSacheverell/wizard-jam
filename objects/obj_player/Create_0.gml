@@ -71,6 +71,7 @@ take_damage = function(_dmg, _from_x, _from_y) {
 slots[0]    = { id: "magic_bolt", tier: 1, cd: 0 };
 slots[1]    = { id: "fireball",        tier: 1, cd: 0 };   // test loadout: the run
 slots[2]    = { id: "chain_lightning", tier: 1, cd: 0 };   // picker replaces this later
+slots[3]    = { id: "frost_nova",      tier: 1, cd: 0 };
 cast_buffer = array_create(4, 0);   // buffered presses, same idea as dash_buffer
 CAST_BUFFER = 6;
 cast_held   = false;                // left mouse held

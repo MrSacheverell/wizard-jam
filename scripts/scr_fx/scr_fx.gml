@@ -26,3 +26,12 @@ function fx_burst(_x, _y, _col, _count) {
     fx_ensure();
     part_particles_create_color(global.ps, _x, _y, global.pt_spark, _col, _count);
 }
+
+/// @func fx_text(x, y, text, colour)
+/// Floating callout, e.g. reaction names. Teaches players what just happened.
+function fx_text(_x, _y, _text, _col) {
+    var _t = instance_create_depth(_x, _y, -99998, obj_fx_text);
+    _t.text  = _text;
+    _t.color = _col;
+    return _t;
+}
