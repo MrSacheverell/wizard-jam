@@ -23,3 +23,5 @@ if (mouse_check_button_pressed(mb_left))  cast_buffer[0] = CAST_BUFFER;
 if (mouse_check_button_pressed(mb_right)) cast_buffer[1] = CAST_BUFFER;
 if (keyboard_check_pressed(ord("Q")))     cast_buffer[2] = CAST_BUFFER;
 if (keyboard_check_pressed(ord("E")))     cast_buffer[3] = CAST_BUFFER;
+if (keyboard_check_pressed(ord("R")))     cast_buffer[4] = CAST_BUFFER;   // locked slots are simply empty
+if (keyboard_check_pressed(ord("F")))     cast_buffer[5] = CAST_BUFFER;

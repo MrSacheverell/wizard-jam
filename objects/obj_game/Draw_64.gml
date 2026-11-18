@@ -25,7 +25,7 @@ if (room == rm_title) {
     draw_set_valign(fa_middle);
     draw_set_color(c_dkgray);
     draw_text(GAME_W / 2, GAME_H - 30, "WASD move   Space dash   Mouse aim");
-    draw_text(GAME_W / 2, GAME_H - 16, "LMB / RMB / Q / E cast   Esc pause");
+    draw_text(GAME_W / 2, GAME_H - 16, "LMB / RMB / Q / E (+ R / F) cast   Esc pause");
     draw_set_halign(fa_right);
     draw_set_valign(fa_bottom);
     draw_text_transformed(GAME_W - 4, GAME_H - 2, "VFX: pixelfx by Patch (MIT)", 0.5, 0.5, 0);
@@ -81,20 +81,29 @@ if (global.debug) {
 
 // ---- Spell slots (temporary HUD until obj_ui) ----
 if (instance_exists(obj_player)) {
-    var _keys = ["LMB", "RMB", "Q", "E"];
+    var _keys = global.slot_keys;
     var _bw = 20, _gap = 4;
-    var _x0 = GAME_W / 2 - (4 * _bw + 3 * _gap) / 2;
+    var _x0 = GAME_W / 2 - (MAX_SLOTS * _bw + (MAX_SLOTS - 1) * _gap) / 2;
     var _y0 = GAME_H - _bw - 6;
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < MAX_SLOTS; i++) {
         var _bx = _x0 + i * (_bw + _gap);
         var _s  = obj_player.slots[i];
+        var _locked = (i >= global.run.slot_count);
         draw_set_color(c_black);
-        draw_set_alpha(0.6);
+        draw_set_alpha(_locked ? 0.3 : 0.6);
         draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, false);
         draw_set_alpha(1);
-        if (!is_undefined(_s)) {
+        if (_locked) {
+            // Locked: dim box with a small padlock
+            draw_set_color(make_color_rgb(60, 56, 72));
+            draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, true);
+            var _cx = _bx + _bw / 2, _cy = _y0 + _bw / 2;
+            draw_rectangle(_cx - 3, _cy - 1, _cx + 3, _cy + 4, false);
+            draw_circle(_cx, _cy - 2, 2.5, true);
+        }
+        else if (!is_undefined(_s)) {
             var _def = spell_get(_s.id);
             var _col = global.element_color[_def.element];
             // Cooldown shade, shrinking from the top
@@ -114,7 +123,7 @@ if (instance_exists(obj_player)) {
             draw_set_color(c_dkgray);
             draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, true);
         }
-        draw_set_color(c_white);
+        draw_set_color(_locked ? make_color_rgb(70, 66, 82) : c_white);
         draw_text(_bx + _bw / 2, _y0 - 6, _keys[i]);
     }
     draw_set_halign(fa_left);

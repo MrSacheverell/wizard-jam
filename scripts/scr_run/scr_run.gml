@@ -15,6 +15,10 @@
 #macro ARENA_DOOR_X    400   // center of the door gap in the top wall
 #macro ARENA_SPAWN_X   400   // player start
 #macro ARENA_SPAWN_Y   440
+#macro MAX_SLOTS       6     // LMB, RMB, Q, E, R, F
+#macro START_SLOTS     4     // R unlocks after the act 1 elite room, F after act 2
+
+global.slot_keys = ["LMB", "RMB", "Q", "E", "R", "F"];
 
 /// @func run_new()
 /// Fresh run state. Starts with Magic Bolt + 1 random spell (design doc).
@@ -34,7 +38,10 @@ function run_new() {
             { id: _second,      tier: 1, cd: 0 },
             undefined,
             undefined,
+            undefined,          // R: locked until the act 1 elite room is cleared
+            undefined,          // F: locked until the act 2 elite room is cleared
         ],
+        slot_count: START_SLOTS,
 
         // Passive effects (see scr_upgrades)
         cd_mult:       1,
@@ -198,6 +205,12 @@ function run_update() {
                     player_sync();
                 }
                 banner_show("ROOM CLEAR");
+                // Elite rooms in acts 1 and 2 unlock a new spell slot (R, then F)
+                if (_r.room == ROOMS_PER_ACT && _r.act < ACTS && _r.slot_count < MAX_SLOTS) {
+                    _r.slot_count++;
+                    banner_show("NEW SPELL SLOT: " + global.slot_keys[_r.slot_count - 1]);
+                    fx_burst(obj_player.x, obj_player.y - 8, global.element_color[ELEMENT.NONE], 20);
+                }
                 clear_timer = 45;
                 _r.phase = "cleared";
             }

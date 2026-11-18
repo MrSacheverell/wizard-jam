@@ -66,7 +66,7 @@ if (dash_buffer > 0) dash_buffer--;
 
 // ---- Spells ----
 if (state != PSTATE.DEAD) {
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < MAX_SLOTS; i++) {
         var _s = slots[i];
         if (is_undefined(_s)) { cast_buffer[i] = 0; continue; }
         if (_s.cd > 0) _s.cd--;

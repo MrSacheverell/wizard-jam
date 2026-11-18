@@ -68,9 +68,9 @@ take_damage = function(_dmg, _from_x, _from_y) {
 };
 
 // ---- Spell casting ----
-// Slot 0 = left mouse (hold to auto-cast), 1 = right mouse, 2 = Q, 3 = E
+// Slot 0 = left mouse (hold to auto-cast), 1 = right mouse, 2 = Q, 3 = E, 4 = R, 5 = F
 slots       = global.run.slots;     // shared with the run, so upgrades apply live
-cast_buffer = array_create(4, 0);   // buffered presses, same idea as dash_buffer
+cast_buffer = array_create(MAX_SLOTS, 0);   // buffered presses, same idea as dash_buffer
 CAST_BUFFER = 6;
 cast_held   = false;                // left mouse held
 cd_mult     = global.run.cd_mult;   // passives like -10% cooldowns change this

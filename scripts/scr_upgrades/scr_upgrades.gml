@@ -1,7 +1,7 @@
 // =====================================================================
 // scr_upgrades — the pick-1-of-3 upgrade screen and passive effects.
 // Choices: a new spell, a spell tier-up, or a passive.
-// A new spell when all 4 slots are full means picking a slot to replace.
+// A new spell when every unlocked slot is full means picking a slot to replace.
 // Runs in obj_game's scope (picker_*), called from scr_run's room flow.
 // =====================================================================
 
@@ -42,7 +42,7 @@ function player_sync() {
 /// @func run_owns_spell(id)  -> slot index or -1
 function run_owns_spell(_id) {
     var _s = global.run.slots;
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < MAX_SLOTS; i++) {
         if (!is_undefined(_s[i]) && _s[i].id == _id) return i;
     }
     return -1;
@@ -65,7 +65,7 @@ function upgrade_roll(_rare) {
         }
     }
     // Tier-ups
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < MAX_SLOTS; i++) {
         var _s = _r.slots[i];
         if (!is_undefined(_s) && _s.tier < 3) {
             var _d = spell_get(_s.id);
@@ -113,7 +113,7 @@ function upgrade_apply(_c) {
     var _r = global.run;
     switch (_c.kind) {
         case "spell":
-            for (var i = 0; i < 4; i++) {
+            for (var i = 0; i < _r.slot_count; i++) {
                 if (is_undefined(_r.slots[i])) {
                     _r.slots[i] = { id: _c.id, tier: 1, cd: 0 };
                     player_sync();
@@ -158,7 +158,7 @@ function picker_close() {
     global.run.phase = "door";
     with (obj_door) door_open();
     with (obj_player) {                   // don't fire the click/key that picked
-        cast_buffer = array_create(4, 0);
+        cast_buffer = array_create(MAX_SLOTS, 0);
         dash_buffer = 0;
     }
 }
@@ -175,8 +175,9 @@ function picker_card_rect(_i) {
 
 /// Replace-mode slot rectangles (same spot as the HUD spell bar, but bigger)
 function picker_slot_rect(_i) {
+    var _n = global.run.slot_count;
     var _w = 56, _gap = 8;
-    var _x0 = GAME_W / 2 - (4 * _w + 3 * _gap) / 2;
+    var _x0 = GAME_W / 2 - (_n * _w + (_n - 1) * _gap) / 2;
     var _x = _x0 + _i * (_w + _gap);
     var _y = GAME_H / 2 - 20;
     return [_x, _y, _x + _w, _y + 48];
@@ -207,15 +208,16 @@ function picker_update() {
         if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space)) picker_choose(pick_sel);
     }
     else {  // "replace": choose which slot the new spell replaces, or skip
-        for (var i = 0; i < 4; i++) {
+        var _ns = global.run.slot_count;
+        for (var i = 0; i < _ns; i++) {
             if (point_in_rect(_mx, _my, picker_slot_rect(i))) {
                 pick_sel = i;
                 if (_click) { picker_replace(i); return; }
             }
         }
-        if (keyboard_check_pressed(ord("A")) || keyboard_check_pressed(vk_left))  pick_sel = (pick_sel + 3) mod 4;
-        if (keyboard_check_pressed(ord("D")) || keyboard_check_pressed(vk_right)) pick_sel = (pick_sel + 1) mod 4;
-        for (var i = 0; i < 4; i++) {
+        if (keyboard_check_pressed(ord("A")) || keyboard_check_pressed(vk_left))  pick_sel = (pick_sel - 1 + _ns) mod _ns;
+        if (keyboard_check_pressed(ord("D")) || keyboard_check_pressed(vk_right)) pick_sel = (pick_sel + 1) mod _ns;
+        for (var i = 0; i < _ns; i++) {
             if (keyboard_check_pressed(ord(string(i + 1)))) { picker_replace(i); return; }
         }
         if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space)) picker_replace(pick_sel);
@@ -285,8 +287,8 @@ function picker_draw() {
         draw_set_color(pick_pending.color);
         draw_text(GAME_W / 2, 62, string_upper(pick_pending.title) + "?");
 
-        var _keys = ["LMB", "RMB", "Q", "E"];
-        for (var i = 0; i < 4; i++) {
+        var _keys = global.slot_keys;
+        for (var i = 0; i < global.run.slot_count; i++) {
             var _r = picker_slot_rect(i);
             var _s = global.run.slots[i];
             var _d = spell_get(_s.id);
@@ -304,7 +306,7 @@ function picker_draw() {
             draw_text_transformed(_cx, _r[3] - 10, "T" + string(_s.tier), 0.6, 0.6, 0);
         }
         draw_set_color(c_gray);
-        draw_text_transformed(GAME_W / 2, GAME_H / 2 + 44, "Click a slot (or 1-4).  Right-click / Backspace: go back", 0.6, 0.6, 0);
+        draw_text_transformed(GAME_W / 2, GAME_H / 2 + 44, "Click a slot (or 1-" + string(global.run.slot_count) + ").  Right-click / Backspace: go back", 0.6, 0.6, 0);
     }
 
     draw_set_halign(fa_left);
