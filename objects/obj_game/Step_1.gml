@@ -36,9 +36,12 @@ global.frozen = (hitstop_frames > 0);
 if (hitstop_frames > 0) hitstop_frames--;
 
 // ---- 3. World-space mouse ----
-// Mouse in GUI space (0..480, 0..270) + camera position = world position.
-var _gx = clamp(device_mouse_x_to_gui(0), 0, GAME_W);
-var _gy = clamp(device_mouse_y_to_gui(0), 0, GAME_H);
+// Window mouse → undo letterbox offset and scale → 480x270 game space.
+// Done by hand because GameMaker's GUI mouse mapping is unreliable on HTML5
+// with a scaled canvas.
+global.mouse_gx = clamp((window_mouse_get_x() - off_x) / scale, 0, GAME_W - 1);
+global.mouse_gy = clamp((window_mouse_get_y() - off_y) / scale, 0, GAME_H - 1);
+
 var _cam = view_camera[0];
-global.mouse_wx = camera_get_view_x(_cam) + _gx;
-global.mouse_wy = camera_get_view_y(_cam) + _gy;
+global.mouse_wx = camera_get_view_x(_cam) + global.mouse_gx;
+global.mouse_wy = camera_get_view_y(_cam) + global.mouse_gy;
