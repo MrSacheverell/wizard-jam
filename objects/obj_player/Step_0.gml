@@ -87,3 +87,6 @@ if (state != PSTATE.DEAD) {
     facing = (global.mouse_wx >= x) ? 1 : -1;
 }
 depth = -y;
+
+// ---- Keep the run's HP in sync (it carries to the next room) ----
+global.run.hp = hp;

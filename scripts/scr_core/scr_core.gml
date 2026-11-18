@@ -13,6 +13,7 @@ enum PSTATE { IDLE, RUN, DASH, HURT, DEAD }
 // ---- globals (safe defaults before obj_game exists) ----
 global.frozen   = false;   // true during hitstop frames
 global.paused   = false;
+global.picking  = false;   // upgrade picker open (freezes gameplay, not menus)
 global.debug    = false;
 global.mouse_wx = 0;       // mouse position in world (room) space
 global.mouse_wy = 0;
@@ -28,13 +29,13 @@ function approach(_a, _b, _amt) {
 /// @func game_frozen()
 /// Gameplay objects call this at the top of Step: if (game_frozen()) exit;
 function game_frozen() {
-    return global.frozen || global.paused;
+    return global.frozen || global.paused || global.picking;
 }
 
 /// @func hitstop(frames)
 /// Freeze gameplay for N frames. Overlapping calls keep the longest one.
 function hitstop(_frames) {
-        with (obj_game) hitstop_frames = max(hitstop_frames, _frames);
+    with (obj_game) hitstop_frames = max(hitstop_frames, _frames);
 }
 
 /// @func shake(amount)

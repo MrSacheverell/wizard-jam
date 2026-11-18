@@ -34,7 +34,32 @@ if (room == rm_title) {
 
 // HP (placeholder)
 if (instance_exists(obj_player)) {
-    draw_text(6, 4, "HP " + string(obj_player.hp) + "/" + string(obj_player.max_hp));
+    draw_text(6, 4, "HP " + string(ceil(obj_player.hp)) + "/" + string(obj_player.max_hp));
+}
+
+// Act / room
+if (room == rm_arena_test) {
+    var _r = global.run;
+    draw_set_halign(fa_right);
+    draw_set_color((_r.room == ROOMS_PER_ACT) ? make_color_rgb(255, 210, 80) : c_white);
+    draw_text(GAME_W - 6, 4, "ACT " + string(_r.act) + "   ROOM " + string(_r.room) + "/" + string(ROOMS_PER_ACT));
+    draw_set_halign(fa_left);
+    draw_set_color(c_white);
+}
+
+// Banner (room start / room clear)
+if (banner_t > 0) {
+    var _a = min(1, banner_t / 30);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    draw_set_alpha(_a);
+    draw_set_color(c_black);
+    draw_text_transformed(GAME_W / 2 + 1, 56 + 1, banner_text, 1.25, 1.25, 0);
+    draw_set_color(c_white);
+    draw_text_transformed(GAME_W / 2, 56, banner_text, 1.25, 1.25, 0);
+    draw_set_alpha(1);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
 }
 
 // Debug overlay (F1)
@@ -93,6 +118,9 @@ if (instance_exists(obj_player)) {
     draw_set_valign(fa_top);
 }
 
+// Upgrade picker
+if (global.picking) picker_draw();
+
 // Pause menu
 if (global.paused) {
     draw_set_alpha(0.6);
@@ -108,12 +136,22 @@ if (global.paused) {
     menu_draw();
 }
 
-// Death screen
+// Death / victory screen
 if (run_over) {
+    var _won = global.run.won;
+    draw_set_alpha(0.5);
+    draw_set_color(c_black);
+    draw_rectangle(0, GAME_H / 2 - 30, GAME_W, GAME_H / 2 + 34, false);
+    draw_set_alpha(1);
     draw_set_halign(fa_center);
-    draw_set_color(c_red);
-    draw_text(GAME_W / 2, GAME_H / 2 - 12, "YOU DIED");
+    draw_set_color(_won ? make_color_rgb(255, 210, 80) : c_red);
+    draw_text(GAME_W / 2, GAME_H / 2 - 20, _won ? "VICTORY!" : "YOU DIED");
+    draw_set_color(c_ltgray);
+    draw_text_transformed(GAME_W / 2, GAME_H / 2 - 6,
+        _won ? "The Archmage awaits... in a future build."
+             : "Act " + string(global.run.act) + ", room " + string(global.run.room) + "  -  " + string(global.run.rooms_cleared) + " rooms cleared",
+        0.7, 0.7, 0);
     draw_set_color(c_white);
-    draw_text(GAME_W / 2, GAME_H / 2 + 4, "R: restart     Esc: title");
+    draw_text(GAME_W / 2, GAME_H / 2 + 12, "R: new run     Esc: title");
     draw_set_halign(fa_left);
 }

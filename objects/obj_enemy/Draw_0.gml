@@ -11,8 +11,18 @@ draw_set_color(c_white);
 var _tint = tint;
 if (status_el == ELEMENT.FREEZE) _tint = merge_color(tint, global.element_color[ELEMENT.FREEZE], 0.65);
 
+var _alpha = 1;
+if (spawn_t > 0) {                       // spawn-in: flicker up out of a rune circle
+    _alpha = 1 - spawn_t / 40;
+    draw_set_alpha(spawn_t / 40);
+    draw_set_color(global.element_color[ELEMENT.NONE]);
+    draw_circle(x, y, 4 + spawn_t * 0.25, true);
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+}
+
 if (flash > 0) gpu_set_fog(true, c_white, 0, 1);
-draw_sprite_ext(sprite_index, image_index, x, y - z, facing, 1, 0, _tint, 1);
+draw_sprite_ext(sprite_index, image_index, x, y - z, facing, 1, 0, _tint, _alpha);
 if (flash > 0) gpu_set_fog(false, c_white, 0, 0);
 
 // Element pip above the head

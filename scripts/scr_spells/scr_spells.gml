@@ -27,18 +27,23 @@ global.spell_db = {
         short:    "MB",
         element:  ELEMENT.NONE,
         cooldown: 0.25,
+        desc:     "Fast bolt toward the cursor. Hold to auto-cast.",
+        tiers:    ["", "Bolts pierce 1 enemy.", "Bolts pierce 2 enemies."],
         cast: function(_caster, _tier, _dir) {
-            projectile_spawn(_caster.x, _caster.y, _dir, {
-                spd:    6,
-                dmg:    1,
-                life:   45,
-                radius: 3,
-                knock:  1.6,
-                size:   2,
-                element: ELEMENT.NONE,
-                color:  global.element_color[ELEMENT.NONE],
-                pierce: (_tier >= 2) ? 1 : 0,   // tier 2: pierce 1 (tier 3 split comes later)
-            });
+            var _n = 1 + global.run.extra_proj;
+            for (var i = 0; i < _n; i++) {
+                projectile_spawn(_caster.x, _caster.y, _dir + (i - (_n - 1) / 2) * 8, {
+                    spd:    6,
+                    dmg:    1,
+                    life:   45,
+                    radius: 3,
+                    knock:  1.6,
+                    size:   2,
+                    element: ELEMENT.NONE,
+                    color:  global.element_color[ELEMENT.NONE],
+                    pierce: _tier - 1,          // T2 pierce 1, T3 pierce 2
+                });
+            }
         },
     },
 
@@ -47,8 +52,12 @@ global.spell_db = {
         short:    "FB",
         element:  ELEMENT.BURN,
         cooldown: 1.2,
+        desc:     "Slow orb that explodes, burning everything in the blast.",
+        tiers:    ["", "Bigger blast.", "Huge blast."],
         cast: function(_caster, _tier, _dir) {
-            projectile_spawn(_caster.x, _caster.y, _dir, {
+            var _n = 1 + global.run.extra_proj;
+            for (var i = 0; i < _n; i++)
+            projectile_spawn(_caster.x, _caster.y, _dir + (i - (_n - 1) / 2) * 14, {
                 spd:       3.5,
                 dmg:       2,          // explosion damage (direct hit = explosion)
                 life:      60,         // explodes where it fizzles, too
@@ -57,7 +66,7 @@ global.spell_db = {
                 size:      4,
                 element:   ELEMENT.BURN,
                 color:     global.element_color[ELEMENT.BURN],
-                explode_r: (_tier >= 2) ? 34 : 26,   // tier 2: bigger blast (tier 3 burning ground later)
+                explode_r: (_tier >= 3) ? 44 : ((_tier == 2) ? 34 : 26),
             });
         },
     },
@@ -67,6 +76,8 @@ global.spell_db = {
         short:    "CL",
         element:  ELEMENT.SHOCK,
         cooldown: 2.0,
+        desc:     "Strikes the enemy nearest the cursor, then jumps to 3 more.",
+        tiers:    ["", "Jumps to 5 enemies.", "Jumps to 7 enemies."],
         cast: function(_caster, _tier, _dir) {
             var _jump_table = [3, 5, 7];
             var _jumps = _jump_table[clamp(_tier, 1, 3) - 1];
@@ -107,9 +118,11 @@ global.spell_db = {
         short:    "FN",
         element:  ELEMENT.FREEZE,
         cooldown: 6.0,
+        desc:     "Ring of frost around you. Frozen enemies can't move or hurt you.",
+        tiers:    ["", "Wider ring.", "Huge ring."],
         cast: function(_caster, _tier, _dir) {
             // Ring around the caster; aim doesn't matter
-            var _r = (_tier >= 2) ? 56 : 42;      // tier 2: wider ring (tier 3 shards later)
+            var _r = (_tier >= 3) ? 70 : ((_tier == 2) ? 56 : 42);
             spell_explode(_caster.x, _caster.y, _r, 1, ELEMENT.FREEZE, 1.2,
                           global.element_color[ELEMENT.FREEZE]);
         },
@@ -169,6 +182,7 @@ function enemy_nearest(_x, _y, _range, _exclude) {
 /// @func spell_explode(x, y, radius, dmg, element, knock, colour)
 /// Area damage + knockback away from the center, with ring and sparks.
 function spell_explode(_x, _y, _r, _dmg, _el, _knock, _col) {
+    _r *= global.run.area_mult;    // Big Magic passive
     with (obj_enemy) {
         if (hp > 0 && point_distance(x, y, _x, _y) < _r + hurt_r) {
             var _d = point_direction(_x, _y, x, y);

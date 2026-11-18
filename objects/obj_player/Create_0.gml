@@ -45,6 +45,7 @@ take_damage = function(_dmg, _from_x, _from_y) {
     if (iframes > 0 || state == PSTATE.DEAD) return false;
 
     hp -= _dmg;
+    global.run.hp = max(0, hp);
     var _dir = point_direction(_from_x, _from_y, x, y);
     hsp = lengthdir_x(3, _dir);
     vsp = lengthdir_y(3, _dir);
@@ -68,11 +69,12 @@ take_damage = function(_dmg, _from_x, _from_y) {
 
 // ---- Spell casting ----
 // Slot 0 = left mouse (hold to auto-cast), 1 = right mouse, 2 = Q, 3 = E
-slots[0]    = { id: "magic_bolt", tier: 1, cd: 0 };
-slots[1]    = { id: "fireball",        tier: 1, cd: 0 };   // test loadout: the run
-slots[2]    = { id: "chain_lightning", tier: 1, cd: 0 };   // picker replaces this later
-slots[3]    = { id: "frost_nova",      tier: 1, cd: 0 };
+slots       = global.run.slots;     // shared with the run, so upgrades apply live
 cast_buffer = array_create(4, 0);   // buffered presses, same idea as dash_buffer
 CAST_BUFFER = 6;
 cast_held   = false;                // left mouse held
-cd_mult     = 1;                    // passives like -10% cooldowns change this
+cd_mult     = global.run.cd_mult;   // passives like -10% cooldowns change this
+
+// ---- Run stats (HP carries between rooms) ----
+max_hp = global.run.max_hp;
+hp     = global.run.hp;

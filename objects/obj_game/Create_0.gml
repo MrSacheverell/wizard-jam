@@ -16,6 +16,17 @@ run_seed = irandom(999999);
 random_set_seed(run_seed);
 hitstop_frames = 0;
 run_over = false;
+global.run = run_new();      // replaced at the start of every run
+
+// ---- Room flow / upgrade picker (see scr_run, scr_upgrades) ----
+clear_timer  = 0;
+pick_choices = [];
+pick_sel     = 0;
+pick_mode    = "cards";
+pick_pending = undefined;
+pick_rare    = false;
+banner_text  = "";
+banner_t     = 0;
 
 // ---- Menus (see scr_menu) ----
 menu_items   = [];
@@ -29,22 +40,25 @@ on_player_death = function() {
     run_over = true;
 };
 
-/// Instant restart. For now this reloads the arena; once room flow exists
-/// it will reset run state and jump to act 1, room 1.
+/// Instant restart: fresh run, act 1 room 1.
 run_restart = function() {
     run_over = false;
     hitstop_frames = 0;
-    global.paused = false;
+    global.paused  = false;
+    global.picking = false;
     run_seed = irandom(999999);
     random_set_seed(run_seed);
-    room_goto(rm_arena_test);
+    global.run = run_new();
+    run_pick_layout();
+    if (room == rm_arena_test) room_restart(); else room_goto(rm_arena_test);
 };
 
 /// Back to the title screen (browser "Quit", and Esc on the death screen).
 go_title = function() {
     run_over = false;
     hitstop_frames = 0;
-    global.paused = false;
+    global.paused  = false;
+    global.picking = false;
     room_goto(rm_title);
 };
 
@@ -56,8 +70,5 @@ pause_open = function() {
 
 // ---- Camera (persistent, created once) ----
 instance_create_depth(0, 0, 0, obj_camera);
-
-// Dev: test-arena wave refill timer (see Step)
-dev_wave_timer = 0;
 
 room_goto(rm_title);

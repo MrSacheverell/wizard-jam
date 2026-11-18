@@ -3,6 +3,13 @@ if (game_frozen()) exit;
 
 if (flash > 0) flash--;
 
+// Spawn-in: fade in, don't move or hurt for a moment (no cheap hits)
+if (spawn_t > 0) {
+    spawn_t--;
+    depth = -y;
+    exit;
+}
+
 // Elements (Burn ticks can kill, so stop if we died)
 status_tick();
 if (!instance_exists(id) || hp <= 0) exit;

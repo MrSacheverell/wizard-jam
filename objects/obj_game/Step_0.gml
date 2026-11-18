@@ -40,15 +40,16 @@ if (global.debug) {
     if (keyboard_check_pressed(vk_f3)) {
         with (obj_player) take_damage(1, global.mouse_wx, global.mouse_wy);
     }
-}
-
-// ---- Dev: refill the test arena a second after it's cleared ----
-if (room == rm_arena_test && !run_over && !global.paused) {
-    if (!instance_exists(obj_enemy)) {
-        dev_wave_timer++;
-        if (dev_wave_timer > 60) {
-            dev_spawn_wave(8);
-            dev_wave_timer = 0;
-        }
+    // F4: kill every enemy (skip to the upgrade pick)
+    if (keyboard_check_pressed(vk_f4)) {
+        with (obj_enemy) die();
     }
 }
+
+// ---- Room flow: clear -> pick upgrade -> door ----
+if (room == rm_arena_test && !run_over && !global.paused) {
+    run_update();
+}
+
+// Banner fade
+if (banner_t > 0 && !global.paused) banner_t--;

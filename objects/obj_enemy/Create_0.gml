@@ -11,6 +11,7 @@ death_color  = make_color_rgb(140, 220, 110);
 flying       = false;    // true: ignores walls (Bat)
 z            = 0;        // draw height above the ground (flyers)
 tint         = c_white;  // e.g. red while telegraphing an attack
+spawn_t      = 40;       // spawn-in: harmless and inactive for a moment
 
 hsp = 0;                 // movement this frame (set by ai_step)
 vsp = 0;
@@ -54,7 +55,7 @@ take_hit = function(_dmg, _kx, _ky, _element) {
 
     // Apply the element (may trigger a reaction), then die if needed,
     // so killing blows still set off Overloads.
-    var _dur = (_element == ELEMENT.FREEZE) ? FREEZE_DUR : STATUS_DUR;
+    var _dur = ((_element == ELEMENT.FREEZE) ? FREEZE_DUR : STATUS_DUR) * global.run.status_mult;
     status_apply(id, _element, _dur);
 
     if (hp <= 0) die();
