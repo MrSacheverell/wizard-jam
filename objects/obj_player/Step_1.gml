@@ -16,3 +16,10 @@ if (in_x != 0 && in_y != 0) {
 if (keyboard_check_pressed(vk_space) || keyboard_check_pressed(vk_shift)) {
     dash_buffer = DASH_BUFFER;
 }
+
+// Spells: left mouse auto-casts while held; other slots buffer their press
+cast_held = mouse_check_button(mb_left);
+if (mouse_check_button_pressed(mb_left))  cast_buffer[0] = CAST_BUFFER;
+if (mouse_check_button_pressed(mb_right)) cast_buffer[1] = CAST_BUFFER;
+if (keyboard_check_pressed(ord("Q")))     cast_buffer[2] = CAST_BUFFER;
+if (keyboard_check_pressed(ord("E")))     cast_buffer[3] = CAST_BUFFER;

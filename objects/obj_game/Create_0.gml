@@ -37,3 +37,6 @@ run_restart = function() {
 instance_create_depth(0, 0, 0, obj_camera);
 
 room_goto(rm_arena_test);
+
+// Dev: test-arena wave refill timer (see Step)
+dev_wave_timer = 0;

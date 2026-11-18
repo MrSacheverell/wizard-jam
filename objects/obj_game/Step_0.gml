@@ -22,3 +22,14 @@ if (global.debug) {
         with (obj_player) take_damage(1, global.mouse_wx, global.mouse_wy);
     }
 }
+
+// ---- Dev: refill the test arena a second after it's cleared ----
+if (room == rm_arena_test && !run_over && !global.paused) {
+    if (!instance_exists(obj_enemy)) {
+        dev_wave_timer++;
+        if (dev_wave_timer > 60) {
+            dev_spawn_wave(8);
+            dev_wave_timer = 0;
+        }
+    }
+}

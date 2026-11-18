@@ -65,3 +65,11 @@ take_damage = function(_dmg, _from_x, _from_y) {
     }
     return true;
 };
+
+// ---- Spell casting ----
+// Slot 0 = left mouse (hold to auto-cast), 1 = right mouse, 2 = Q, 3 = E
+slots[0]    = { id: "magic_bolt", tier: 1, cd: 0 };
+cast_buffer = array_create(4, 0);   // buffered presses, same idea as dash_buffer
+CAST_BUFFER = 6;
+cast_held   = false;                // left mouse held
+cd_mult     = 1;                    // passives like -10% cooldowns change this

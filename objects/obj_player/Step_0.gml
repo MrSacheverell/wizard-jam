@@ -64,6 +64,21 @@ switch (state) {
 
 if (dash_buffer > 0) dash_buffer--;
 
+// ---- Spells ----
+if (state != PSTATE.DEAD) {
+    for (var i = 0; i < 4; i++) {
+        var _s = slots[i];
+        if (is_undefined(_s)) { cast_buffer[i] = 0; continue; }
+        if (_s.cd > 0) _s.cd--;
+        var _want = (cast_buffer[i] > 0) || (i == 0 && cast_held);
+        if (_want && _s.cd <= 0) {
+            spell_cast(id, i);
+            cast_buffer[i] = 0;
+        }
+        if (cast_buffer[i] > 0) cast_buffer[i]--;
+    }
+}
+
 // ---- Move + collide ----
 move_collide();
 
