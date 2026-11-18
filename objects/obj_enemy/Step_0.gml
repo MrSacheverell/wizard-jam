@@ -16,6 +16,12 @@ if (!instance_exists(id) || hp <= 0) exit;
 
 var _frozen = (status_el == ELEMENT.FREEZE);
 
+// Vampiric elites slowly regenerate
+if (elite == "vampiric" && hp < max_hp) {
+    regen_t++;
+    if (regen_t >= 150) { regen_t = 0; hp = min(max_hp, hp + 1); fx_burst(x, y - 8 - z, elite_color, 4); }
+}
+
 hsp = 0;
 vsp = 0;
 if (!_frozen) ai_step();          // frozen enemies don't think or move
@@ -53,6 +59,9 @@ depth = -y;
 if (contact_dmg > 0 && !_frozen && instance_exists(obj_player)) {
     var _p = obj_player;
     if (point_distance(x, y, _p.x, _p.y) < hurt_r + 5) {
-        _p.take_damage(contact_dmg, x, y);
+        if (_p.take_damage(contact_dmg, x, y) && elite == "vampiric") {
+            hp = min(max_hp, hp + 2);               // Vampiric: drinks on hit
+            fx_burst(x, y - 8 - z, elite_color, 8);
+        }
     }
 }

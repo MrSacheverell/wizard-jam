@@ -26,6 +26,9 @@ if (room == rm_title) {
     draw_set_color(c_dkgray);
     draw_text(GAME_W / 2, GAME_H - 30, "WASD move   Space dash   Mouse aim");
     draw_text(GAME_W / 2, GAME_H - 16, "LMB / RMB / Q / E cast   Esc pause");
+    draw_set_halign(fa_right);
+    draw_set_valign(fa_bottom);
+    draw_text_transformed(GAME_W - 4, GAME_H - 2, "VFX: pixelfx by Patch (MIT)", 0.5, 0.5, 0);
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
     draw_set_color(c_white);
@@ -95,7 +98,7 @@ if (instance_exists(obj_player)) {
             var _def = spell_get(_s.id);
             var _col = global.element_color[_def.element];
             // Cooldown shade, shrinking from the top
-            var _max = max(1, _def.cooldown * 60 * obj_player.cd_mult);
+            var _max = max(1, spell_cooldown(_def, _s.tier) * 60 * obj_player.cd_mult);
             var _f = clamp(_s.cd / _max, 0, 1);
             draw_set_color(_col);
             draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, true);

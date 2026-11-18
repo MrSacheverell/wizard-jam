@@ -1,6 +1,6 @@
 /// obj_enemy — Draw
 // Shadow (stays on the ground; flyers' shadows shrink a little with height)
-var _sw = 6 - min(z, 12) * 0.15;
+var _sw = (6 - min(z, 12) * 0.15) * size_mult;
 draw_set_alpha(0.35);
 draw_set_color(c_black);
 draw_ellipse(x - _sw, y - 2, x + _sw, y + 2, false);
@@ -21,8 +21,20 @@ if (spawn_t > 0) {                       // spawn-in: flicker up out of a rune c
     draw_set_color(c_white);
 }
 
+var _xs = facing * size_mult, _ys = size_mult;
+
+// Elite outline: the sprite drawn 4 times in the elite color, offset 1px
+if (elite != "" && spawn_t <= 0) {
+    gpu_set_fog(true, elite_color, 0, 1);
+    draw_sprite_ext(sprite_index, image_index, x - 1, y - z, _xs, _ys, 0, c_white, 1);
+    draw_sprite_ext(sprite_index, image_index, x + 1, y - z, _xs, _ys, 0, c_white, 1);
+    draw_sprite_ext(sprite_index, image_index, x, y - z - 1, _xs, _ys, 0, c_white, 1);
+    draw_sprite_ext(sprite_index, image_index, x, y - z + 1, _xs, _ys, 0, c_white, 1);
+    gpu_set_fog(false, c_white, 0, 0);
+}
+
 if (flash > 0) gpu_set_fog(true, c_white, 0, 1);
-draw_sprite_ext(sprite_index, image_index, x, y - z, facing, 1, 0, _tint, _alpha);
+draw_sprite_ext(sprite_index, image_index, x, y - z, _xs, _ys, 0, _tint, _alpha);
 if (flash > 0) gpu_set_fog(false, c_white, 0, 0);
 
 // Element pip above the head

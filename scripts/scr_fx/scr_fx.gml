@@ -35,3 +35,16 @@ function fx_text(_x, _y, _text, _col) {
     _t.color = _col;
     return _t;
 }
+
+/// @func fx_anim(sprite, x, y, [scale], [angle], [depth])
+/// Plays a one-shot animated effect sprite (pixelfx sheets) and removes itself.
+/// Pauses during hitstop so impacts freeze together with the action.
+function fx_anim(_spr, _x, _y, _scale = 1, _angle = 0, _depth = undefined) {
+    var _f = instance_create_depth(_x, _y, _depth ?? (-_y - 2), obj_fx_anim);
+    _f.sprite_index = _spr;
+    _f.image_index  = 0;
+    _f.image_xscale = _scale;
+    _f.image_yscale = _scale;
+    _f.image_angle  = _angle;
+    return _f;
+}

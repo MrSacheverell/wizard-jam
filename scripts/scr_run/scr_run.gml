@@ -126,19 +126,44 @@ function arena_build() {
     // Enemies
     var _elite = (_r.room == ROOMS_PER_ACT);
     var _count = 4 + _r.act * 2 + _r.room + (_elite ? 4 : 0);
-    run_spawn_wave(_count);
+    // Elites: elite rooms get 1 + act of them; later acts sprinkle them elsewhere
+    var _elites = _elite ? 1 + _r.act : ((_r.act >= 2 && random(1) < 0.25 * (_r.act - 1)) ? 1 : 0);
+    run_spawn_wave(_count, _elites);
 
     _r.phase = "fight";
     var _label = "ACT " + string(_r.act) + "  -  " + (_elite ? "ELITE ROOM" : "ROOM " + string(_r.room));
     with (obj_game) banner_show(_label);
 }
 
-/// @func run_spawn_wave(count)
+/// @func run_enemy_table(act)
+/// Which enemies appear in each act, as [object, weight] pairs.
+function run_enemy_table(_act) {
+    switch (_act) {
+        case 1:  return [[obj_shambler, 6], [obj_bat, 3], [obj_bomber, 1], [obj_archer, 1]];
+        case 2:  return [[obj_shambler, 4], [obj_bat, 3], [obj_bomber, 2], [obj_archer, 2], [obj_brute, 1], [obj_hexer, 1]];
+        default: return [[obj_shambler, 3], [obj_bat, 3], [obj_bomber, 2], [obj_archer, 2], [obj_brute, 2], [obj_hexer, 2]];
+    }
+}
+
+/// @func weighted_pick(table)  -> the first element of a randomly chosen [value, weight] pair
+function weighted_pick(_table) {
+    var _total = 0;
+    for (var i = 0; i < array_length(_table); i++) _total += _table[i][1];
+    var _roll = random(_total);
+    for (var i = 0; i < array_length(_table); i++) {
+        _roll -= _table[i][1];
+        if (_roll <= 0) return _table[i][0];
+    }
+    return _table[0][0];
+}
+
+/// @func run_spawn_wave(count, elites)
 /// Spawns enemies on free floor away from the player, scaled by act.
-function run_spawn_wave(_count) {
-    var _act = global.run.act;
-    var _bat_chance = 0.1 + 0.12 * _act;           // more Bats in later acts
-    var _hp_mult    = 1 + 0.35 * (_act - 1);       // tougher in later acts
+/// The first `elites` of them get a random elite modifier.
+function run_spawn_wave(_count, _elites = 0) {
+    var _act     = global.run.act;
+    var _table   = run_enemy_table(_act);
+    var _hp_mult = 1 + 0.35 * (_act - 1);          // tougher in later acts
 
     var _made = 0, _tries = 0;
     while (_made < _count && _tries < 300) {
@@ -148,9 +173,13 @@ function run_spawn_wave(_count) {
         if (point_distance(_x, _y, ARENA_SPAWN_X, ARENA_SPAWN_Y) < 150) continue;
         if (collision_rectangle(_x - 10, _y - 10, _x + 10, _y + 6, obj_wall, false, true) != noone) continue;
 
-        var _e = instance_create_layer(_x, _y, "Instances", (random(1) < _bat_chance) ? obj_bat : obj_shambler);
+        var _e = instance_create_layer(_x, _y, "Instances", weighted_pick(_table));
         _e.max_hp = round(_e.max_hp * _hp_mult);
         _e.hp     = _e.max_hp;
+        if (_elites > 0) {
+            _e.apply_elite(choose("fast", "armored", "splitting", "vampiric"));
+            _elites--;
+        }
         _made++;
     }
 }

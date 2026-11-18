@@ -2,6 +2,7 @@
 // Defaults only. projectile_spawn() overrides these with the spell's config.
 // x/y = ground position; the projectile is drawn z pixels above it.
 
+kind      = "bolt";      // "bolt" (default) or "disc" (flies out and returns)
 spd       = 4;
 dmg       = 1;
 life      = 60;          // frames before it fizzles
@@ -13,11 +14,14 @@ color     = c_white;
 pierce    = 0;           // extra enemies it can pass through
 explode_r = 0;           // > 0: explodes (area damage) on hit, wall or fizzle
 z         = 8;           // draw height above the ground (chest height)
+owner     = noone;       // caster (discs return to it)
 
 dir  = 0;
 hsp  = 0;
 vsp  = 0;
 hits = [];               // enemies already hit, so pierce doesn't double-hit
+returning = false;       // disc: on its way back
+spin = 0;
 
 /// Ends the projectile: explodes if it's an explosive, else a small puff.
 finish = function() {
