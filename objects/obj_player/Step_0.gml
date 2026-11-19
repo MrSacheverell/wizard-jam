@@ -64,6 +64,13 @@ switch (state) {
 
 if (dash_buffer > 0) dash_buffer--;
 
+// Dash afterimages
+if (state == PSTATE.DASH && dash_timer mod 2 == 0) {
+    var _ghost = instance_create_depth(x, y, depth + 1, obj_afterimage);
+    _ghost.sprite_index = sprite_index;
+    _ghost.image_xscale = facing;
+}
+
 // ---- Spells ----
 if (state != PSTATE.DEAD) {
     for (var i = 0; i < MAX_SLOTS; i++) {

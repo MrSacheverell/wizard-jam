@@ -185,6 +185,42 @@ if (instance_exists(obj_player)) {
     draw_set_valign(fa_top);
 }
 
+// Hurt flash / last-HP warning: red screen edges
+if (room == rm_arena_test && instance_exists(obj_player)) {
+    var _edge = hurt_flash * 0.6;
+    if (obj_player.hp <= 1 && obj_player.state != PSTATE.DEAD) _edge = max(_edge, 0.22 + 0.15 * sin(current_time / 140));
+    if (_edge > 0.02) {
+        draw_set_color(c_red);
+        for (var i = 0; i < 8; i++) {
+            draw_set_alpha(_edge * (1 - i / 8));
+            draw_rectangle(i, i, GAME_W - 1 - i, GAME_H - 1 - i, true);
+        }
+        draw_set_alpha(1);
+        draw_set_color(c_white);
+    }
+}
+
+// Combo counter
+if (room == rm_arena_test && combo_count >= 2) {
+    var _cs  = 1 + combo_pop * 0.6;
+    var _cc  = (combo_count >= 25) ? make_color_rgb(255, 120, 60)
+             : ((combo_count >= 10) ? make_color_rgb(255, 210, 80) : c_white);
+    var _cx0 = GAME_W - 10, _cy0 = 44;
+    draw_set_halign(fa_right);
+    draw_set_valign(fa_middle);
+    draw_set_color(c_black);
+    draw_text_transformed(_cx0 + 1, _cy0 + 1, "x" + string(combo_count), _cs, _cs, 0);
+    draw_set_color(_cc);
+    draw_text_transformed(_cx0, _cy0, "x" + string(combo_count), _cs, _cs, 0);
+    draw_set_color(c_ltgray);
+    draw_text_transformed(_cx0, _cy0 + 13, "COMBO", 0.5, 0.5, 0);
+    draw_set_color(_cc);
+    draw_rectangle(_cx0 - 30 * (combo_timer / 120), _cy0 + 19, _cx0, _cy0 + 20, false);   // time left to keep it going
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_color(c_white);
+}
+
 // Upgrade picker
 if (global.picking) picker_draw();
 

@@ -7,6 +7,7 @@ if (fall <= 0) {
     fx_anim(spr_fx_blast_l, x, y, clamp(r * global.run.area_mult / 40, 0.6, 1.75));   // pixelfx Explosion (large)
     fx_burst(x, y - 6, c_white, 10);
     shake(6);
+    screen_flash(0.3);
     hitstop(4);
     instance_destroy();
 }

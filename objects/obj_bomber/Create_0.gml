@@ -47,5 +47,6 @@ on_death = function() {
     fx_burst(_bx, _by - 6, death_color, 10);
     fx_burst(_bx, _by - 6, c_yellow, 8);
     shake(5);
+    screen_flash(0.2);
     hitstop(3);
 };

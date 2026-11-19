@@ -48,3 +48,33 @@ function fx_anim(_spr, _x, _y, _scale = 1, _angle = 0, _depth = undefined) {
     _f.image_angle  = _angle;
     return _f;
 }
+
+/// @func fx_damage(x, y, amount, colour, big)
+/// Floating damage number. big = boosted hit (Shatter / Superconduct): larger, gold.
+function fx_damage(_x, _y, _amount, _col, _big) {
+    var _txt = (frac(_amount) == 0) ? string(_amount) : string_format(_amount, 0, 1);
+    var _t = fx_text(_x + random_range(-4, 4), _y, _txt, _col);
+    _t.size     = _big ? 1.5 : 0.85;
+    _t.vy       = _big ? 0.6 : 0.5;
+    _t.life_max = _big ? 45 : 32;
+    _t.life     = _t.life_max;
+    return _t;
+}
+
+/// @func combo_add()
+/// Counts a kill toward the combo (kills within 2 s of each other chain).
+function combo_add() {
+    with (obj_game) {
+        combo_count++;
+        combo_timer = 120;
+        combo_pop   = 1;
+        global.run.best_combo = max(global.run[$ "best_combo"] ?? 0, combo_count);
+        if (combo_count == 10 || combo_count == 25 || combo_count == 50 || combo_count == 100) {
+            if (instance_exists(obj_player)) {
+                var _call = fx_text(obj_player.x, obj_player.y - 36, string(combo_count) + " COMBO!", make_color_rgb(255, 210, 80));
+                _call.size = 1.4;
+            }
+            screen_flash(0.15);
+        }
+    }
+}

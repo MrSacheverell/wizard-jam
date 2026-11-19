@@ -74,5 +74,13 @@ if (room == rm_arena_test && !run_over && !global.paused) {
     run_update();
 }
 
+// Combo window, HUD pulses
+if (!global.paused && !global.picking) {
+    if (combo_timer > 0) combo_timer--;
+    else combo_count = 0;
+}
+combo_pop  *= 0.85;
+hurt_flash *= 0.9;
+
 // Banner fade
 if (banner_t > 0 && !global.paused) banner_t--;

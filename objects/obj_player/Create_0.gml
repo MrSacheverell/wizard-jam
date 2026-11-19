@@ -46,6 +46,7 @@ take_damage = function(_dmg, _from_x, _from_y) {
 
     hp -= _dmg;
     global.run.hp = max(0, hp);
+    with (obj_game) hurt_flash = 1;
     var _dir = point_direction(_from_x, _from_y, x, y);
     hsp = lengthdir_x(3, _dir);
     vsp = lengthdir_y(3, _dir);

@@ -26,6 +26,10 @@ pick_sel     = 0;
 pick_mode    = "cards";
 pick_pending = undefined;
 pick_rare    = false;
+combo_count  = 0;            // kills chained within 2 s (scr_fx combo_add)
+combo_timer  = 0;
+combo_pop    = 0;            // HUD pulse when it goes up
+hurt_flash   = 0;            // red screen-edge flash when the player is hit
 banner_text  = "";
 banner_t     = 0;
 

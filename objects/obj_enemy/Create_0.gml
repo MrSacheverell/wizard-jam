@@ -73,7 +73,13 @@ take_hit = function(_dmg, _kx, _ky, _element) {
         return;
     }
 
-    if (vuln_t > 0) _dmg *= SUPER_MULT;
+    var _num_col = (_element != ELEMENT.NONE) ? global.element_color[_element] : c_white;
+    var _boosted = false;
+    if (vuln_t > 0) {
+        _dmg *= SUPER_MULT;
+        _boosted = true;
+        _num_col = global.react_color.superconduct;
+    }
 
     // SHATTER: a big hit on a frozen enemy
     if (status_el == ELEMENT.FREEZE && _dmg >= BIG_HIT) {
@@ -85,8 +91,12 @@ take_hit = function(_dmg, _kx, _ky, _element) {
         fx_burst(x, y - 8 - z, global.react_color.shatter, 8);
         hitstop(4);
         shake(4);
+        screen_flash(0.35);
+        _boosted = true;
+        _num_col = global.react_color.shatter;
     }
 
+    fx_damage(x, y - 18 - z, _dmg, _boosted ? make_color_rgb(255, 215, 90) : _num_col, _boosted);
     hp    -= _dmg;
     flash  = 5;
     kx    += _kx * (1 - knock_resist);
@@ -106,6 +116,7 @@ die = function() {
     if (!instance_exists(id) || dying) return;
     dying = true;
     hp = 0;
+    combo_add();
     on_death();
 
     // Splitting elites burst into two smaller (non-elite) copies

@@ -138,6 +138,7 @@ enter_phase = function(_ph) {
     fx_text(x, y - 40, (_ph == 2) ? "FROST AND STORM!" : "ALL THE ELEMENTS!", c_white);
     hitstop(6);
     shake(6);
+    screen_flash(0.6);
     // Adds
     var _adds = (_ph == 2) ? [obj_shambler, obj_shambler] : [obj_bat, obj_hexer, obj_bomber, obj_shambler];
     var _mult = (_ph == 2) ? 1 : 1.5;
@@ -215,4 +216,5 @@ on_death = function() {
     fx_text(x, y - 40, "THE ARCHMAGE FALLS", death_color);
     hitstop(12);
     shake(10);
+    screen_flash(0.9);
 };

@@ -256,6 +256,19 @@ function spell_cast(_caster, _slot) {
     var _ok  = _def.cast(_caster, _s.tier, _dir);
     if (_ok == false) return false;
 
+    // Cast feedback: a flash at the staff in the spell's color, and a little recoil
+    var _col = global.element_color[_def.element];
+    var _sx = _caster.x + lengthdir_x(8, _dir);
+    var _sy = _caster.y - 10 + lengthdir_y(8, _dir);
+    fx_burst(_sx, _sy, _col, 4);
+    var _flash = instance_create_depth(_sx, _sy + 6, -_caster.y - 20, obj_fx_ring);
+    _flash.r = 1; _flash.r_max = 7; _flash.life_max = 6; _flash.life = 6; _flash.color = _col;
+    if (_s.id != "frost_nova" && _s.id != "wisp" && _s.id != "blink" && _caster.state != PSTATE.DASH) {
+        var _k = clamp(_def.cooldown * 0.6, 0.25, 1.5);     // bigger spells kick harder
+        _caster.hsp -= lengthdir_x(_k, _dir);
+        _caster.vsp -= lengthdir_y(_k, _dir);
+    }
+
     _s.cd = round(spell_cooldown(_def, _s.tier) * 60 * _caster.cd_mult);
     return true;
 }
