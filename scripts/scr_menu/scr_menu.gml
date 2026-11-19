@@ -111,6 +111,11 @@ function menu_pause_items() {
     return [
         { label: "Resume",      action: function() { global.paused = false; } },
         { label: "Restart run", action: function() { obj_game.run_restart(); } },
+        { label: "Lighting: " + (global.lighting ? "On" : "Off"),
+          action: function() {
+              global.lighting = !global.lighting;
+              with (obj_game) { var _s = menu_sel; menu_items = menu_pause_items(); menu_sel = _s; }
+          } },
         { label: is_browser() ? "Quit to title" : "Quit",
           action: function() {
               if (is_browser()) obj_game.go_title(); else game_end();

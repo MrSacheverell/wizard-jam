@@ -79,5 +79,6 @@ pause_open = function() {
 
 // ---- Camera (persistent, created once) ----
 instance_create_depth(0, 0, 0, obj_camera);
+instance_create_depth(0, 0, -90000, obj_lighting);   // light layer (scr_lighting)
 
 room_goto(rm_title);
