@@ -4,7 +4,11 @@
 // ---- Title screen ----
 if (room == rm_title) {
     global.paused = false;
-    if (menu_kind != "title") menu_open(menu_title_items(), "title");
+    if (menu_kind != "title" && menu_kind != "meta") menu_open(menu_title_items(), "title");
+    if (menu_kind == "meta" && keyboard_check_pressed(vk_escape)) { menu_open(menu_title_items(), "title"); exit; }
+    if (meta_msg_t > 0) meta_msg_t--;
+    if (global.debug && keyboard_check_pressed(vk_f7)) { global.meta.essence += 100; save_write(); if (menu_kind == "meta") meta_refresh_menu(); }
+    if (keyboard_check_pressed(vk_f1)) global.debug = !global.debug;
     menu_update();
     exit;
 }
@@ -40,6 +44,25 @@ if (global.debug) {
     if (keyboard_check_pressed(vk_f3)) {
         with (obj_player) take_damage(1, global.mouse_wx, global.mouse_wy);
     }
+    // F6: jump to the Archmage with every slot unlocked and filled (boss testing)
+    if (keyboard_check_pressed(vk_f6) && room == rm_arena_test) {
+        var _r = global.run;
+        _r.act = ACTS;
+        _r.room = ROOMS_PER_ACT;
+        _r.slot_count = MAX_SLOTS;
+        var _pool = ["fireball", "chain_lightning", "frost_nova", "arcane_disc", "meteor", "wisp", "blink"];
+        for (var i = 0; i < MAX_SLOTS; i++) {
+            if (is_undefined(_r.slots[i])) {
+                for (var j = 0; j < array_length(_pool); j++) {
+                    if (run_owns_spell(_pool[j]) == -1) { _r.slots[i] = { id: _pool[j], tier: 2, cd: 0 }; break; }
+                }
+            }
+        }
+        global.picking = false;
+        room_restart();
+    }
+    // F7: +100 Essence (test the Upgrades menu)
+    if (keyboard_check_pressed(vk_f7)) { global.meta.essence += 100; save_write(); }
     // F4: kill every enemy (skip to the upgrade pick)
     if (keyboard_check_pressed(vk_f4)) {
         with (obj_enemy) die();

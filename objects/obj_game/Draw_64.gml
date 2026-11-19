@@ -6,6 +6,36 @@ draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_color(c_white);
 
+// ---- Upgrades screen (title room) ----
+if (room == rm_title && menu_kind == "meta") {
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    draw_set_color(c_white);
+    draw_text_transformed(GAME_W / 2, 16, "UPGRADES", 1.25, 1.25, 0);
+    draw_set_color(make_color_rgb(190, 150, 255));
+    draw_text_transformed(GAME_W / 2, 34, "Essence: " + string(global.meta.essence), 0.8, 0.8, 0);
+    menu_draw();
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    var _it = menu_items[menu_sel];
+    var _desc = _it[$ "desc"] ?? "";
+    draw_set_color(c_ltgray);
+    draw_text_ext_transformed(GAME_W / 2, GAME_H - 30, _desc, 14, (GAME_W - 40) / 0.7, 0.7, 0.7, 0);
+    if (meta_msg_t > 0) {
+        draw_set_alpha(min(1, meta_msg_t / 20));
+        draw_set_color(make_color_rgb(255, 220, 120));
+        draw_text_transformed(GAME_W / 2, GAME_H - 12, meta_msg, 0.7, 0.7, 0);
+        draw_set_alpha(1);
+    } else {
+        draw_set_color(c_dkgray);
+        draw_text_transformed(GAME_W / 2, GAME_H - 12, "Esc: back", 0.6, 0.6, 0);
+    }
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_color(c_white);
+    exit;
+}
+
 // ---- Title screen ----
 if (room == rm_title) {
     var _t = current_time / 1000;
@@ -20,6 +50,10 @@ if (room == rm_title) {
     draw_text_transformed(GAME_W / 2, 72, "ARCANE OVERLOAD", 2, 2, 0);
     draw_set_color(c_gray);
     draw_text(GAME_W / 2, 100, "a wizard roguelite");
+    draw_set_color(make_color_rgb(190, 150, 255));
+    draw_text_transformed(GAME_W / 2, 116, "Essence " + string(global.meta.essence)
+        + "     Staff: " + meta_staff_def(global.meta.staff).name
+        + ((global.meta.wins > 0) ? "     Wins " + string(global.meta.wins) : ""), 0.6, 0.6, 0);
     menu_draw();
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
@@ -48,6 +82,27 @@ if (room == rm_arena_test) {
     draw_text(GAME_W - 6, 4, "ACT " + string(_r.act) + "   ROOM " + string(_r.room) + "/" + string(ROOMS_PER_ACT));
     draw_set_halign(fa_left);
     draw_set_color(c_white);
+}
+
+// Boss health bar
+if (instance_exists(obj_archmage)) {
+    var _boss = obj_archmage;
+    var _hb_w = 220, _hb_x = GAME_W / 2 - _hb_w / 2, _hb_y = 22;
+    var _hb_f = clamp(_boss.hp / _boss.max_hp, 0, 1);
+    draw_set_color(c_black);
+    draw_set_alpha(0.6);
+    draw_rectangle(_hb_x - 2, _hb_y - 2, _hb_x + _hb_w + 2, _hb_y + 7, false);
+    draw_set_alpha(1);
+    var _hb_c = (_boss.phase == 1) ? global.element_color[ELEMENT.BURN]
+            : ((_boss.phase == 2) ? global.element_color[ELEMENT.FREEZE] : global.element_color[ELEMENT.SHOCK]);
+    draw_set_color(_hb_c);
+    draw_rectangle(_hb_x, _hb_y, _hb_x + _hb_w * _hb_f, _hb_y + 5, false);
+    draw_set_color(c_white);
+    draw_line(_hb_x + _hb_w * 0.66, _hb_y - 1, _hb_x + _hb_w * 0.66, _hb_y + 6);   // phase marks
+    draw_line(_hb_x + _hb_w * 0.33, _hb_y - 1, _hb_x + _hb_w * 0.33, _hb_y + 6);
+    draw_set_halign(fa_center);
+    draw_text_transformed(GAME_W / 2, _hb_y - 12, "THE ARCHMAGE", 0.6, 0.6, 0);
+    draw_set_halign(fa_left);
 }
 
 // Banner (room start / room clear)
@@ -118,13 +173,13 @@ if (instance_exists(obj_player)) {
                 draw_set_alpha(1);
             }
             draw_set_color((_f > 0) ? c_gray : _col);
-            draw_text(_bx + _bw / 2 + 1, _y0 + _bw / 2 + 1, _def.short);
+            draw_text_transformed(_bx + _bw / 2 + 1, _y0 + _bw / 2 + 1, _def.short, 0.75, 0.75, 0);
         } else {
             draw_set_color(c_dkgray);
             draw_rectangle(_bx, _y0, _bx + _bw, _y0 + _bw, true);
         }
         draw_set_color(_locked ? make_color_rgb(70, 66, 82) : c_white);
-        draw_text(_bx + _bw / 2, _y0 - 6, _keys[i]);
+        draw_text_transformed(_bx + _bw / 2, _y0 - 5, _keys[i], 0.6, 0.6, 0);
     }
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
@@ -160,10 +215,13 @@ if (run_over) {
     draw_text(GAME_W / 2, GAME_H / 2 - 20, _won ? "VICTORY!" : "YOU DIED");
     draw_set_color(c_ltgray);
     draw_text_transformed(GAME_W / 2, GAME_H / 2 - 6,
-        _won ? "The Archmage awaits... in a future build."
+        _won ? "The Archmage is defeated!  " + string(global.run.rooms_cleared) + " rooms cleared"
              : "Act " + string(global.run.act) + ", room " + string(global.run.room) + "  -  " + string(global.run.rooms_cleared) + " rooms cleared",
         0.7, 0.7, 0);
     draw_set_color(c_white);
-    draw_text(GAME_W / 2, GAME_H / 2 + 12, "R: new run     Esc: title");
+    draw_set_color(make_color_rgb(190, 150, 255));
+    draw_text_transformed(GAME_W / 2, GAME_H / 2 + 6, "+" + string(global.run.essence_final) + " Essence  (total " + string(global.meta.essence) + ")", 0.7, 0.7, 0);
+    draw_set_color(c_white);
+    draw_text(GAME_W / 2, GAME_H / 2 + 20, "R: new run     Esc: title");
     draw_set_halign(fa_left);
 }

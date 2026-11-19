@@ -23,7 +23,21 @@ global.slot_keys = ["LMB", "RMB", "Q", "E", "R", "F"];
 /// @func run_new()
 /// Fresh run state. Starts with Magic Bolt + 1 random spell (design doc).
 function run_new() {
-    var _second = choose("fireball", "chain_lightning", "frost_nova");
+    // Starting loadout comes from the equipped staff (scr_meta)
+    var _staff = meta_staff_def(global.meta.staff);
+    var _second = _staff.spell;
+    if (_second == "") {
+        var _pool = [];
+        var _ids = variable_struct_get_names(global.spell_db);
+        for (var i = 0; i < array_length(_ids); i++) {
+            if (_ids[i] != "magic_bolt" && meta_spell_unlocked(_ids[i])) array_push(_pool, _ids[i]);
+        }
+        _second = _pool[irandom(array_length(_pool) - 1)];
+    }
+    var _el_dur = [1, 1, 1, 1];                    // per-element duration multiplier
+    if (_staff.el != ELEMENT.NONE) _el_dur[_staff.el] = 1.5;
+    var _hp = 5 + global.meta.hp_lvl;
+
     return {
         act:   1,
         room:  1,
@@ -31,8 +45,12 @@ function run_new() {
         layout: -1,
         last_layout: -1,
 
-        hp: 5,
-        max_hp: 5,
+        hp: _hp,
+        max_hp: _hp,
+        el_dur: _el_dur,
+        essence: 0,               // earned this run; banked by run_bank_essence()
+        essence_final: 0,
+        banked: false,
         slots: [
             { id: "magic_bolt", tier: 1, cd: 0 },
             { id: _second,      tier: 1, cd: 0 },
@@ -90,6 +108,16 @@ global.arena_layouts = [
     ]},
 ];
 
+// The Archmage's sanctum: open floor, four pillars to hide behind
+global.boss_layout = { name: "Sanctum", walls: [
+    [176, 144, 32, 32], [592, 144, 32, 32], [176, 320, 32, 32], [592, 320, 32, 32],
+]};
+
+/// @func run_is_boss_room()
+function run_is_boss_room() {
+    return global.run.act == ACTS && global.run.room == ROOMS_PER_ACT;
+}
+
 /// @func run_pick_layout()
 /// Random layout, never the same one twice in a row.
 function run_pick_layout() {
@@ -117,8 +145,9 @@ function arena_build() {
     dev_wall(0, 0, _t, _h);
     dev_wall(_w - _t, 0, _t, _h);
 
-    // Layout
-    var _walls = global.arena_layouts[_r.layout].walls;
+    // Layout (the boss room always uses the sanctum)
+    var _boss = run_is_boss_room();
+    var _walls = _boss ? global.boss_layout.walls : global.arena_layouts[_r.layout].walls;
     for (var i = 0; i < array_length(_walls); i++) {
         var _b = _walls[i];
         dev_wall(_b[0], _b[1], _b[2], _b[3]);
@@ -129,6 +158,17 @@ function arena_build() {
 
     // Player
     instance_create_layer(ARENA_SPAWN_X, ARENA_SPAWN_Y, "Instances", obj_player);
+
+    // Boss room: just the Archmage
+    if (_boss) {
+        instance_create_layer(room_width / 2, 150, "Instances", obj_archmage);
+        _r.hp = _r.max_hp;                 // the sanctum restores you before the fight
+        player_sync();
+        with (obj_player) fx_burst(x, y - 8, make_color_rgb(255, 90, 110), 16);
+        _r.phase = "fight";
+        with (obj_game) banner_show("ACT 3  -  THE ARCHMAGE");
+        return;
+    }
 
     // Enemies
     var _elite = (_r.room == ROOMS_PER_ACT);
@@ -198,8 +238,17 @@ function run_update() {
     switch (_r.phase) {
 
         case "fight":
+            if (!instance_exists(obj_enemy) && run_is_boss_room()) {
+                // Boss down: victory after a moment to enjoy it
+                _r.rooms_cleared++;
+                _r.essence += 40;
+                clear_timer = 150;
+                _r.phase = "victory";
+                break;
+            }
             if (!instance_exists(obj_enemy)) {
                 _r.rooms_cleared++;
+                _r.essence += 2 + _r.act + ((_r.room == ROOMS_PER_ACT) ? 5 : 0);
                 if (_r.heal_on_clear > 0) {
                     _r.hp = min(_r.max_hp, _r.hp + _r.heal_on_clear);
                     player_sync();
@@ -230,6 +279,15 @@ function run_update() {
 
         case "door":
             break;                 // obj_door calls room_advance() when entered
+
+        case "victory":
+            clear_timer--;
+            if (clear_timer <= 0) {
+                _r.won = true;
+                run_over = true;
+                run_bank_essence();
+            }
+            break;
     }
 }
 
@@ -261,4 +319,12 @@ function banner_show(_text) {
         banner_text = _text;
         banner_t    = 110;
     }
+}
+
+/// @func heart_drop(x, y)
+/// Drops a heart pickup (heals 1 HP) on free floor near (x, y).
+function heart_drop(_x, _y) {
+    _x = clamp(_x, 24, room_width - 24);
+    _y = clamp(_y, 48, room_height - 24);
+    return instance_create_layer(_x, _y, "Instances", obj_heart);
 }

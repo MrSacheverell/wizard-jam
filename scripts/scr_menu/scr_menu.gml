@@ -19,12 +19,18 @@ function menu_open(_items, _kind) {
     menu_items = _items;
     menu_sel   = 0;
     menu_kind  = _kind;
+    // The Upgrades menu is a long list: smaller rows, smaller text, wider
+    var _meta = (_kind == "meta");
+    menu_item_h = _meta ? 14 : MENU_ITEM_H;
+    menu_scale  = _meta ? 0.8 : 1;
+    menu_w      = _meta ? 280 : MENU_ITEM_W;
 }
 
 /// @func menu_y0()
 /// Top of the first item, menu centered a little below the middle.
 function menu_y0() {
-    return GAME_H / 2 + 6 - (array_length(menu_items) * MENU_ITEM_H) / 2;
+    if (menu_kind == "meta") return 52;
+    return GAME_H / 2 + 6 - (array_length(menu_items) * menu_item_h) / 2;
 }
 
 /// @func menu_update()
@@ -41,9 +47,9 @@ function menu_update() {
     var _y0 = menu_y0();
     var _hover = -1;
     for (var i = 0; i < _n; i++) {
-        var _iy = _y0 + i * MENU_ITEM_H;
-        if (abs(global.mouse_gx - GAME_W / 2) < MENU_ITEM_W / 2
-        && global.mouse_gy >= _iy && global.mouse_gy < _iy + MENU_ITEM_H) {
+        var _iy = _y0 + i * menu_item_h;
+        if (abs(global.mouse_gx - GAME_W / 2) < menu_w / 2
+        && global.mouse_gy >= _iy && global.mouse_gy < _iy + menu_item_h) {
             _hover = i;
         }
     }
@@ -70,18 +76,18 @@ function menu_draw() {
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
     for (var i = 0; i < array_length(menu_items); i++) {
-        var _iy  = _y0 + i * MENU_ITEM_H + MENU_ITEM_H / 2;
+        var _iy  = _y0 + i * menu_item_h + menu_item_h / 2;
         var _sel = (i == menu_sel);
         if (_sel) {
             draw_set_alpha(0.25);
             draw_set_color(global.element_color[ELEMENT.NONE]);
-            draw_rectangle(GAME_W / 2 - MENU_ITEM_W / 2, _iy - MENU_ITEM_H / 2 + 1,
-                           GAME_W / 2 + MENU_ITEM_W / 2, _iy + MENU_ITEM_H / 2 - 1, false);
+            draw_rectangle(GAME_W / 2 - menu_w / 2, _iy - menu_item_h / 2 + 1,
+                           GAME_W / 2 + menu_w / 2, _iy + menu_item_h / 2 - 1, false);
             draw_set_alpha(1);
         }
         draw_set_color(_sel ? c_white : c_gray);
         var _label = menu_items[i].label;
-        draw_text(GAME_W / 2, _iy, _sel ? "> " + _label + " <" : _label);
+        draw_text_transformed(GAME_W / 2, _iy, _sel ? "> " + _label + " <" : _label, menu_scale, menu_scale, 0);
     }
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
@@ -91,7 +97,8 @@ function menu_draw() {
 /// @func menu_title_items()
 function menu_title_items() {
     var _items = [
-        { label: "Start", action: function() { obj_game.run_restart(); } },
+        { label: "Start",    action: function() { obj_game.run_restart(); } },
+        { label: "Upgrades", action: function() { with (obj_game) menu_open(meta_menu_items(), "meta"); } },
     ];
     if (!is_browser()) {
         array_push(_items, { label: "Quit", action: function() { game_end(); } });

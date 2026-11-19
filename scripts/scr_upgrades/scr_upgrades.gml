@@ -57,7 +57,7 @@ function upgrade_roll(_rare) {
     // New spells
     var _ids = variable_struct_get_names(global.spell_db);
     for (var i = 0; i < array_length(_ids); i++) {
-        if (run_owns_spell(_ids[i]) == -1) {
+        if (run_owns_spell(_ids[i]) == -1 && meta_spell_unlocked(_ids[i])) {
             var _d = spell_get(_ids[i]);
             array_push(_pool, { kind: "spell", id: _ids[i], weight: 3,
                 title: _d.name, sub: "NEW SPELL", desc: _d.desc,
@@ -81,7 +81,7 @@ function upgrade_roll(_rare) {
             var _p = global.passive_db[$ _pids[i]];
             var _have = _r.passives[$ _pids[i]] ?? 0;
             if (_have < _p.max) {
-                array_push(_pool, { kind: "passive", id: _pids[i], weight: 2,
+                array_push(_pool, { kind: "passive", id: _pids[i], weight: 3,
                     title: _p.name, sub: "PASSIVE" + ((_have > 0) ? "  " + string(_have + 1) + "/" + string(_p.max) : ""),
                     desc: _p.desc, color: c_silver });
             }

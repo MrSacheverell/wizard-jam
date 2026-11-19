@@ -19,6 +19,10 @@
   },
   "name":"Wizard Jam",
   "resources":[
+    {"id":{"name":"scr_meta","path":"scripts/scr_meta/scr_meta.yy",},},
+    {"id":{"name":"obj_heart","path":"objects/obj_heart/obj_heart.yy",},},
+    {"id":{"name":"spr_archmage","path":"sprites/spr_archmage/spr_archmage.yy",},},
+    {"id":{"name":"obj_archmage","path":"objects/obj_archmage/obj_archmage.yy",},},
     {"id":{"name":"obj_archer","path":"objects/obj_archer/obj_archer.yy",},},
     {"id":{"name":"obj_bat","path":"objects/obj_bat/obj_bat.yy",},},
     {"id":{"name":"obj_bomber","path":"objects/obj_bomber/obj_bomber.yy",},},

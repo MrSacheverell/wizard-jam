@@ -14,7 +14,8 @@ if (spawn_t > 0) {
 status_tick();
 if (!instance_exists(id) || hp <= 0) exit;
 
-var _frozen = (status_el == ELEMENT.FREEZE);
+var _frozen = (status_el == ELEMENT.FREEZE) && !is_boss;
+if (is_boss && status_el == ELEMENT.FREEZE) slow_t = max(slow_t, 2);   // bosses just slow down
 
 // Vampiric elites slowly regenerate
 if (elite == "vampiric" && hp < max_hp) {
