@@ -14,5 +14,6 @@ door_open = function() {
     is_open = true;
     if (instance_exists(blocker)) instance_destroy(blocker);
     fx_burst(x + 16, y + 20, global.element_color[ELEMENT.NONE], 16);
+    sfx(snd_door, 0, 0.7);
     shake(2);
 };

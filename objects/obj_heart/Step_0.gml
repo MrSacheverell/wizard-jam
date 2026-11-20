@@ -19,6 +19,7 @@ if (_d < 8) {
     _p.hp = min(_p.max_hp, _p.hp + 1);
     global.run.hp = _p.hp;
     fx_burst(_p.x, _p.y - 10, make_color_rgb(255, 90, 110), 10);
+    sfx(snd_heal, 0.03);
     fx_text(_p.x, _p.y - 24, "+1 HP", make_color_rgb(255, 120, 140));
     instance_destroy();
 }

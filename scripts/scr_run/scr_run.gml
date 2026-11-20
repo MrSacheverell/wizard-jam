@@ -254,10 +254,12 @@ function run_update() {
                     player_sync();
                 }
                 banner_show("ROOM CLEAR");
+                sfx(snd_clear, 0);
                 // Elite rooms in acts 1 and 2 unlock a new spell slot (R, then F)
                 if (_r.room == ROOMS_PER_ACT && _r.act < ACTS && _r.slot_count < MAX_SLOTS) {
                     _r.slot_count++;
                     banner_show("NEW SPELL SLOT: " + global.slot_keys[_r.slot_count - 1]);
+                    sfx(snd_unlock, 0);
                     fx_burst(obj_player.x, obj_player.y - 8, global.element_color[ELEMENT.NONE], 20);
                 }
                 clear_timer = 45;
@@ -283,6 +285,7 @@ function run_update() {
         case "victory":
             clear_timer--;
             if (clear_timer <= 0) {
+                sfx(snd_victory, 0);
                 _r.won = true;
                 run_over = true;
                 run_bank_essence();

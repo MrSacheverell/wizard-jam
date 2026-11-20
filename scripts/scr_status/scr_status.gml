@@ -59,6 +59,7 @@ function status_react(_a, _b) {
         // OVERLOAD: explosion that spreads Burn (can chain into other Shocked enemies)
         fx_text(x, y - 24 - z, "OVERLOAD", global.react_color.overload);
         screen_flash(0.25);
+        sfx(snd_overload, 0.1);
         if (global.react_depth < 6) {
             global.react_depth++;
             spell_explode(x, y, 24, 1, ELEMENT.BURN, 1.5, global.react_color.overload);
@@ -69,12 +70,14 @@ function status_react(_a, _b) {
         // STEAM: lingering cloud that slows anything inside it
         fx_text(x, y - 24 - z, "STEAM", global.react_color.steam);
         screen_flash(0.1);
+        sfx(snd_steam, 0.1);
         instance_create_depth(x, y, -y - 1, obj_steam);
     }
     else if (_pair(_a, _b, ELEMENT.SHOCK, ELEMENT.FREEZE)) {
         // SUPERCONDUCT: takes extra damage for a while
         fx_text(x, y - 24 - z, "SUPERCONDUCT", global.react_color.superconduct);
         screen_flash(0.15);
+        sfx(snd_superconduct, 0.06);
         vuln_t = SUPER_DUR;
         fx_burst(x, y - 8 - z, global.react_color.superconduct, 8);
     }

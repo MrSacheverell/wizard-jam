@@ -68,6 +68,7 @@ take_hit = function(_dmg, _kx, _ky, _element) {
     if (hp <= 0) return;
 
     if (block_hit(_dmg, _kx, _ky)) {
+        sfx(snd_block, 0.1, 0.8);
         kx += _kx * 0.3;
         ky += _ky * 0.3;
         return;
@@ -92,6 +93,7 @@ take_hit = function(_dmg, _kx, _ky, _element) {
         hitstop(4);
         shake(4);
         screen_flash(0.35);
+        sfx(snd_shatter, 0.08);
         _boosted = true;
         _num_col = global.react_color.shatter;
     }
@@ -99,6 +101,7 @@ take_hit = function(_dmg, _kx, _ky, _element) {
     fx_damage(x, y - 18 - z, _dmg, _boosted ? make_color_rgb(255, 215, 90) : _num_col, _boosted);
     hp    -= _dmg;
     flash  = 5;
+    if (hp > 0) sfx(snd_hit, 0.15, 0.55);
     kx    += _kx * (1 - knock_resist);
     ky    += _ky * (1 - knock_resist);
     shake(1);
@@ -117,6 +120,7 @@ die = function() {
     dying = true;
     hp = 0;
     combo_add();
+    sfx(snd_kill, 0.15, is_boss ? 1 : 0.75);
     on_death();
 
     // Splitting elites burst into two smaller (non-elite) copies

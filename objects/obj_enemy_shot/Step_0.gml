@@ -48,6 +48,7 @@ case "zone":
         if (_p != noone && point_distance(_p.x, _p.y, x, y) < r + 4) _p.take_damage(dmg, x, y);
         fx_anim(spr_fx_blast_s, x, y, r / 26);
         shake(3);
+        sfx(snd_explode, 0.15, 0.6);
         instance_destroy();
     }
     break;
@@ -75,7 +76,7 @@ case "beam":
         var _cx = x + _vx * _tt, _cy = y + _vy * _tt;
         if (point_distance(_p.x, _p.y, _cx, _cy) < r) _p.take_damage(dmg, _cx, _cy);
     }
-    if (timer == delay) shake(2);
+    if (timer == delay) { shake(2); sfx(snd_zap_strike, 0.1, 0.6); }
     if (timer >= delay + strike) instance_destroy();
     break;
 }

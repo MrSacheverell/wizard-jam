@@ -255,6 +255,7 @@ function spell_cast(_caster, _slot) {
     var _dir = point_direction(_caster.x, _caster.y - 8, global.mouse_wx, global.mouse_wy);
     var _ok  = _def.cast(_caster, _s.tier, _dir);
     if (_ok == false) return false;
+    spell_sfx(_s.id);
 
     // Cast feedback: a flash at the staff in the spell's color, and a little recoil
     var _col = global.element_color[_def.element];
@@ -318,6 +319,7 @@ function spell_explode(_x, _y, _r, _dmg, _el, _knock, _col, _vfx = true) {
         switch (_el) {
             case ELEMENT.BURN:      // pixelfx Explosion, drawn for a 26 px blast
                 fx_anim(spr_fx_blast_s, _x, _y, clamp(_r / 26, 0.75, 1.75));
+                sfx(snd_explode, 0.12, 0.8);
                 break;
             case ELEMENT.FREEZE:    // pixelfx Frost Nova, drawn for a 42 px ring
                 fx_anim(spr_fx_nova, _x, _y, clamp(_r / 42, 0.75, 1.75));

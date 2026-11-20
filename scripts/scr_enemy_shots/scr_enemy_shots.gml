@@ -7,6 +7,7 @@
 function enemy_shot_lob(_x, _y, _tx, _ty) {
     var _s = instance_create_depth(_x, _y, -_y, obj_enemy_shot);
     _s.kind  = "lob";
+    sfx(snd_enemy_shot, 0.12, 0.5);
     _s.sx = _x; _s.sy = _y;
     _s.tx = _tx; _s.ty = _ty;
     _s.dur   = 45 + point_distance(_x, _y, _tx, _ty) / 8;
@@ -20,6 +21,7 @@ function enemy_shot_lob(_x, _y, _tx, _ty) {
 function enemy_shot_orb(_x, _y, _dir) {
     var _s = instance_create_depth(_x, _y, -_y, obj_enemy_shot);
     _s.kind  = "orb";
+    sfx(snd_hex_orb, 0.08, 0.7);
     _s.dir   = _dir;
     _s.color = make_color_rgb(190, 90, 255);
     return _s;
@@ -30,6 +32,7 @@ function enemy_shot_orb(_x, _y, _dir) {
 function enemy_shot_bolt(_x, _y, _dir, _spd, _col) {
     var _s = instance_create_depth(_x, _y, -_y, obj_enemy_shot);
     _s.kind  = "bolt";
+    sfx(snd_enemy_shot, 0.12, 0.5);
     _s.dir   = _dir;
     _s.spd   = _spd;
     _s.life  = 240;

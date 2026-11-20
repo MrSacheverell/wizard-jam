@@ -32,6 +32,7 @@ switch (state) {
             dash_cd_timer = dash_cooldown;
             dash_buffer   = 0;
             iframes       = max(iframes, dash_time + 2);
+            sfx(snd_dash, 0.1, 0.8);
         } else {
             state = (abs(hsp) + abs(vsp) > 0.1) ? PSTATE.RUN : PSTATE.IDLE;
         }

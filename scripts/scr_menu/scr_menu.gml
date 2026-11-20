@@ -38,6 +38,7 @@ function menu_y0() {
 function menu_update() {
     var _n = array_length(menu_items);
     if (_n == 0) return;
+    var _sel_before = menu_sel;
 
     // Keyboard
     if (keyboard_check_pressed(ord("W")) || keyboard_check_pressed(vk_up))   menu_sel = (menu_sel - 1 + _n) mod _n;
@@ -58,6 +59,7 @@ function menu_update() {
     }
     menu_last_mx = window_mouse_get_x();
     menu_last_my = window_mouse_get_y();
+    if (menu_sel != _sel_before) sfx(snd_menu_move, 0, 0.6);
 
     // Confirm
     var _go = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space)
@@ -65,6 +67,7 @@ function menu_update() {
     if (_go) {
         if (_hover != -1 && mouse_check_button_pressed(mb_left)) menu_sel = _hover;
         var _act = menu_items[menu_sel].action;
+        sfx(snd_menu_select, 0);
         _act();
     }
 }
@@ -99,6 +102,11 @@ function menu_title_items() {
     var _items = [
         { label: "Start",    action: function() { obj_game.run_restart(); } },
         { label: "Upgrades", action: function() { with (obj_game) menu_open(meta_menu_items(), "meta"); } },
+        { label: "Sound: " + string(round(global.sfx_volume * 100)) + "%",
+          action: function() {
+              sfx_cycle_volume();
+              with (obj_game) { var _s = menu_sel; menu_items = menu_title_items(); menu_sel = _s; }
+          } },
     ];
     if (!is_browser()) {
         array_push(_items, { label: "Quit", action: function() { game_end(); } });
@@ -111,6 +119,11 @@ function menu_pause_items() {
     return [
         { label: "Resume",      action: function() { global.paused = false; } },
         { label: "Restart run", action: function() { obj_game.run_restart(); } },
+        { label: "Sound: " + string(round(global.sfx_volume * 100)) + "%",
+          action: function() {
+              sfx_cycle_volume();
+              with (obj_game) { var _s = menu_sel; menu_items = menu_pause_items(); menu_sel = _s; }
+          } },
         { label: "Lighting: " + (global.lighting ? "On" : "Off"),
           action: function() {
               global.lighting = !global.lighting;

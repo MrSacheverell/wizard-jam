@@ -60,6 +60,7 @@ arch_teleport = function(_tx = undefined, _ty = undefined) {
     }
     fx_anim(spr_fx_blink_out, _ox, _oy);
     fx_anim(spr_fx_blink_in, x, y);
+    sfx(snd_cast_blink, 0.05, 0.8);
 };
 
 /// Start an attack: sets the cast (wind-up) time
@@ -84,6 +85,7 @@ release_attack = function() {
     var _dir = point_direction(x, y, _p.x, _p.y);
     switch (attack) {
         case "volley":
+            sfx(snd_cast_fire, 0.08, 0.8);
             var _n = (phase == 3) ? 7 : 5;
             for (var i = 0; i < _n; i++) {
                 enemy_shot_bolt(x, y, _dir + (i - (_n - 1) / 2) * 13, 2.6, col_fire);
@@ -91,6 +93,7 @@ release_attack = function() {
             break;
 
         case "meteors":
+            sfx(snd_cast_meteor, 0.08, 0.8);
             var _m = (phase == 1) ? 3 : ((phase == 2) ? 4 : 5);
             enemy_shot_zone(_p.x, _p.y, 24, 54, col_fire);        // one always on you
             repeat (_m - 1) {
@@ -99,6 +102,7 @@ release_attack = function() {
             break;
 
         case "ring":
+            sfx(snd_cast_frost, 0.05, 0.9);
             enemy_shot_ring(x, y, (phase == 3) ? 2.0 : 1.65, 190, col_frost);
             break;
 
@@ -111,6 +115,8 @@ release_attack = function() {
             break;
 
         case "ring_volley":
+            sfx(snd_cast_frost, 0.05, 0.9);
+            sfx(snd_cast_fire, 0.08, 0.7);
             enemy_shot_ring(x, y, 1.6, 190, col_frost);
             for (var i = 0; i < 12; i++) enemy_shot_bolt(x, y, i * 30, 1.8, col_fire);
             break;
@@ -139,6 +145,7 @@ enter_phase = function(_ph) {
     hitstop(6);
     shake(6);
     screen_flash(0.6);
+    sfx(snd_boss_phase, 0, 1);
     // Adds
     var _adds = (_ph == 2) ? [obj_shambler, obj_shambler] : [obj_bat, obj_hexer, obj_bomber, obj_shambler];
     var _mult = (_ph == 2) ? 1 : 1.5;
@@ -217,4 +224,6 @@ on_death = function() {
     hitstop(12);
     shake(10);
     screen_flash(0.9);
+    sfx(snd_explode_big, 0, 1);
+    sfx(snd_boss_phase, 0, 0.6);
 };

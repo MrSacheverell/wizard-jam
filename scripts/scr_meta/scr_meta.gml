@@ -60,6 +60,7 @@ function save_load() {
     for (var i = 0; i < array_length(_u); i++) _m.unlocked[$ _u[i]] = true;
     var _s = string_split(ini_read_string("meta", "staves", ""), ",", true);
     for (var i = 0; i < array_length(_s); i++) _m.staves[$ _s[i]] = true;
+    global.sfx_volume = clamp(ini_read_real("settings", "sfx", 0.8), 0, 1);
     ini_close();
     if (!(_m.staves[$ _m.staff] ?? false)) _m.staff = "apprentice";
 }
@@ -75,6 +76,7 @@ function save_write() {
     ini_write_string("meta", "staff", _m.staff);
     ini_write_string("meta", "unlocked", string_join_ext(",", variable_struct_get_names(_m.unlocked)));
     ini_write_string("meta", "staves", string_join_ext(",", variable_struct_get_names(_m.staves)));
+    ini_write_real("settings", "sfx", global.sfx_volume);
     ini_close();
 }
 

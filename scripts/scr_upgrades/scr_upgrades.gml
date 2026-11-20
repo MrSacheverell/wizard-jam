@@ -190,6 +190,7 @@ function point_in_rect(_px, _py, _r) {
 /// @func picker_update()
 function picker_update() {
     var _mx = global.mouse_gx, _my = global.mouse_gy;
+    var _sel_before = pick_sel;
     var _click = mouse_check_button_pressed(mb_left);
 
     if (pick_mode == "cards") {
@@ -226,10 +227,12 @@ function picker_update() {
             pick_sel = 0;
         }
     }
+    if (pick_sel != _sel_before && global.picking) sfx(snd_menu_move, 0, 0.6);
 }
 
 function picker_choose(_i) {
     var _c = pick_choices[_i];
+    sfx(snd_pick, 0);
     if (upgrade_apply(_c)) {
         picker_close();
     } else {
@@ -240,6 +243,7 @@ function picker_choose(_i) {
 }
 
 function picker_replace(_slot) {
+    sfx(snd_pick, 0);
     global.run.slots[_slot] = { id: pick_pending.id, tier: 1, cd: 0 };
     player_sync();
     picker_close();

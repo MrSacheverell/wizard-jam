@@ -48,5 +48,6 @@ on_death = function() {
     fx_burst(_bx, _by - 6, c_yellow, 8);
     shake(5);
     screen_flash(0.2);
+    sfx(snd_explode, 0.1);
     hitstop(3);
 };

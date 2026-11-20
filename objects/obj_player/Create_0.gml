@@ -55,12 +55,14 @@ take_damage = function(_dmg, _from_x, _from_y) {
     shake(4);
 
     if (hp <= 0) {
+        sfx(snd_death, 0);
         hp = 0;
         state = PSTATE.DEAD;
         hsp = 0;
         vsp = 0;
         with (obj_game) on_player_death();
     } else {
+        sfx(snd_hurt, 0.05);
         state = PSTATE.HURT;
         hurt_timer = hurt_time;
         iframes = hurt_iframes;

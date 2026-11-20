@@ -75,6 +75,7 @@ function combo_add() {
                 _call.size = 1.4;
             }
             screen_flash(0.15);
+            sfx(snd_combo, 0);
         }
     }
 }
